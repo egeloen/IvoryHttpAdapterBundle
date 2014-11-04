@@ -1,0 +1,5 @@
+ivory_http_adapter:
+    subscribers:
+        basic_auth:
+            username: foo
+            password: bar

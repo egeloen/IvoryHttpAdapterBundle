@@ -1,0 +1,3 @@
+ivory_http_adapter:
+    configs:
+        user_agent: global

@@ -1,0 +1,6 @@
+services:
+    my_subscriber:
+        class: Ivory\HttpAdapter\Event\Subscriber\StatusCodeSubscriber
+        tags:
+            -
+                name: ivory.http_adapter.subscriber

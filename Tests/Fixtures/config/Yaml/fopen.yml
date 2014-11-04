@@ -1,0 +1,4 @@
+ivory_http_adapter:
+    adapters:
+        fopen:
+            type: fopen

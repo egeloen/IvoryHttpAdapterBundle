@@ -1,0 +1,10 @@
+ivory_http_adapter:
+    configs:
+        timeout: 60
+    adapters:
+        global:
+            type: socket
+        local:
+            type: socket
+            configs:
+                timeout: 20

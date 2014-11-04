@@ -1,0 +1,9 @@
+services:
+    my_listener:
+        class: Ivory\HttpAdapter\Event\Subscriber\StatusCodeSubscriber
+        tags:
+            -
+                name: ivory.http_adapter.listener
+                event: ivory.http_adapter.post_send
+                method: onPostSend
+                priority: 10

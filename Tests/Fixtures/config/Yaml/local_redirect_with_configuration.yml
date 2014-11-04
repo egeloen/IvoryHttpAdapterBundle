@@ -1,0 +1,11 @@
+ivory_http_adapter:
+    adapters:
+        global:
+            type: socket
+        local:
+            type: socket
+            subscribers:
+                redirect:
+                    max: 3
+                    strict: true
+                    throw_exception: false

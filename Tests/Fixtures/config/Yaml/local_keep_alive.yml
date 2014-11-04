@@ -1,0 +1,10 @@
+ivory_http_adapter:
+    configs:
+        keep_alive: true
+    adapters:
+        global:
+            type: socket
+        local:
+            type: socket
+            configs:
+                keep_alive: false

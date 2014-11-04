@@ -1,0 +1,10 @@
+ivory_http_adapter:
+    configs:
+        protocol_version: 1.0
+    adapters:
+        global:
+            type: socket
+        local:
+            type: socket
+            configs:
+                protocol_version: 1.1

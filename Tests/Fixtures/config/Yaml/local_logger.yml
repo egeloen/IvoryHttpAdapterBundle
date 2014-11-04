@@ -1,0 +1,8 @@
+ivory_http_adapter:
+    adapters:
+        global:
+            type: socket
+        local:
+            type: socket
+            subscribers:
+                logger: ~

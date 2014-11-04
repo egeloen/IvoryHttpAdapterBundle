@@ -1,0 +1,10 @@
+ivory_http_adapter:
+    configs:
+        encoding_type: application/json
+    adapters:
+        global:
+            type: socket
+        local:
+            type: socket
+            configs:
+                encoding_type: application/xml

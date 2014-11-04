@@ -1,0 +1,3 @@
+ivory_http_adapter:
+    configs:
+        protocol_version: 1.0

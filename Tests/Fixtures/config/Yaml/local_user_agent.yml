@@ -1,0 +1,10 @@
+ivory_http_adapter:
+    configs:
+        user_agent: global
+    adapters:
+        global:
+            type: socket
+        local:
+            type: socket
+            configs:
+                user_agent: local

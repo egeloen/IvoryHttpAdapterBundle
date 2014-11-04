@@ -1,0 +1,4 @@
+ivory_http_adapter:
+    adapters:
+        file_get_contents:
+            type: file_get_contents

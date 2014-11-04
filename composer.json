@@ -1,0 +1,41 @@
+{
+    "name": "egeloen/http-adapter-bundle",
+    "description": "Issue HTTP request for your Symfony2 project.",
+    "keywords": [ "request", "http" ],
+    "type": "symfony-bundle",
+    "license": "MIT",
+    "authors": [
+        {
+            "name": "Eric GELOEN",
+            "email": "geloen.eric@gmail.com"
+        }
+    ],
+    "require": {
+        "php": ">=5.3.3",
+        "egeloen/http-adapter": "~0.1.0",
+        "symfony/framework-bundle": "~2.1"
+    },
+    "require-dev": {
+        "phpunit/phpunit": "~4.0",
+        "satooshi/php-coveralls": "~0.6",
+        "ext-curl": "*",
+        "guzzle/guzzle": "~3.9,>=3.9.2",
+        "guzzlehttp/guzzle": "~4.1,>=4.1.4|~5.0",
+        "kriswallsmith/buzz": "~0.13",
+        "nategood/httpful": "~0.2,>=0.2.17",
+        "psr/log": "~1.0",
+        "zendframework/zendframework1": "~1.12,>=1.12.9",
+        "zendframework/zend-http": "~2.0"
+    },
+    "autoload": {
+        "psr-4": { "Ivory\\HttpAdapterBundle\\": "" }
+    },
+    "config": {
+        "bin-dir": "bin"
+    },
+    "extra": {
+        "branch-alias": {
+            "dev-master": "0.1-dev"
+        }
+    }
+}

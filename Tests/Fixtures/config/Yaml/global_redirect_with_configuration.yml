@@ -1,0 +1,6 @@
+ivory_http_adapter:
+    subscribers:
+        redirect:
+            max: 3
+            strict: true
+            throw_exception: false
