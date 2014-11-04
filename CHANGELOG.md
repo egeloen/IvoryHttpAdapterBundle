@@ -1,6 +1,6 @@
 # CHANGELOG
 
-### 0.4.0 (????-??-??)
+### 0.4.0 (2014-11-05)
 
  * fe85b8d - Upgrade egeloen/http-adapter to 0.4
 
