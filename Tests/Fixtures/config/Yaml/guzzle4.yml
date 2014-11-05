@@ -1,4 +1,0 @@
-ivory_http_adapter:
-    adapters:
-        guzzle4:
-            type: guzzle4

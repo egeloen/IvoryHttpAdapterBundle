@@ -1,5 +1,11 @@
 # UPGRADE
 
+### 0.4 to 0.5
+
+ * The `guzzle3` type has been renamed to `guzzle`.
+ * The `guzzle4` type has been renamed to `guzzle_http`.
+ * The Ivory http adapter library has BC breaks (See [here](https://github.com/egeloen/ivory-http-adapter/blob/master/UPGRADE.md#04-to-05)).
+
 ### 0.3 to 0.4
 
  * The Ivory http adapter library has BC breaks (See [here](https://github.com/egeloen/ivory-http-adapter/blob/master/UPGRADE.md#03-to-04)).

@@ -70,7 +70,7 @@ abstract class AbstractIvoryHttpAdapterExtensionTest extends \PHPUnit_Framework_
      */
     public function testHttpAdapter($configuration, $service, $class)
     {
-        if ((($configuration === 'guzzle4') && !class_exists('GuzzleHttp\Client'))
+        if ((($configuration === 'guzzle_http') && !class_exists('GuzzleHttp\Client'))
             || (($configuration === 'zend2') && !class_exists('Zend\Http\Client'))) {
             $this->markTestSkipped();
         }
@@ -777,8 +777,8 @@ abstract class AbstractIvoryHttpAdapterExtensionTest extends \PHPUnit_Framework_
                 'Ivory\HttpAdapter\FileGetContentsHttpAdapter',
             ),
             array('fopen', 'ivory.http_adapter.fopen', 'Ivory\HttpAdapter\FopenHttpAdapter'),
-            array('guzzle3', 'ivory.http_adapter.guzzle3', 'Ivory\HttpAdapter\Guzzle3HttpAdapter'),
-            array('guzzle4', 'ivory.http_adapter.guzzle4', 'Ivory\HttpAdapter\Guzzle4HttpAdapter'),
+            array('guzzle', 'ivory.http_adapter.guzzle', 'Ivory\HttpAdapter\GuzzleHttpAdapter'),
+            array('guzzle_http', 'ivory.http_adapter.guzzle_http', 'Ivory\HttpAdapter\GuzzleHttpHttpAdapter'),
             array('httpful', 'ivory.http_adapter.httpful', 'Ivory\HttpAdapter\HttpfulHttpAdapter'),
             array('socket', 'ivory.http_adapter.socket', 'Ivory\HttpAdapter\SocketHttpAdapter'),
             array('zend1', 'ivory.http_adapter.zend1', 'Ivory\HttpAdapter\Zend1HttpAdapter'),
