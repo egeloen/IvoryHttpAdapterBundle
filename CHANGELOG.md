@@ -1,6 +1,6 @@
 # CHANGELOG
 
-### 0.5.0 (????-??-??)
+### 0.5.0 (2014-11-05)
 
  * b758b1b - Upgrade egeloen/http-adapter to 0.5
 
