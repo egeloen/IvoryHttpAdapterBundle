@@ -14,8 +14,8 @@
         <parameter key="ivory.http_adapter.curl.class">Ivory\HttpAdapter\CurlHttpAdapter</parameter>
         <parameter key="ivory.http_adapter.file_get_contents.class">Ivory\HttpAdapter\FileGetContentsHttpAdapter</parameter>
         <parameter key="ivory.http_adapter.fopen.class">Ivory\HttpAdapter\FopenHttpAdapter</parameter>
-        <parameter key="ivory.http_adapter.guzzle3.class">Ivory\HttpAdapter\Guzzle3HttpAdapter</parameter>
-        <parameter key="ivory.http_adapter.guzzle4.class">Ivory\HttpAdapter\Guzzle4HttpAdapter</parameter>
+        <parameter key="ivory.http_adapter.guzzle.class">Ivory\HttpAdapter\GuzzleHttpAdapter</parameter>
+        <parameter key="ivory.http_adapter.guzzle_http.class">Ivory\HttpAdapter\GuzzleHttpHttpAdapter</parameter>
         <parameter key="ivory.http_adapter.httpful.class">Ivory\HttpAdapter\HttpfulHttpAdapter</parameter>
         <parameter key="ivory.http_adapter.socket.class">Ivory\HttpAdapter\SocketHttpAdapter</parameter>
         <parameter key="ivory.http_adapter.zend1.class">Ivory\HttpAdapter\Zend1HttpAdapter</parameter>

@@ -25,7 +25,7 @@ Here, three services will be available: `ivory.http_adapter.my_socket_adapter`, 
 and `ivory.http_adapter` (alias of `ivory.http_adapter.my_curl_adapter`). Be aware, if you don't provide default
 adapter, the first one in the list will be used.
 
-Additionally, the type can be either: `buzz`, `curl`, `file_get_contents`, `fopen`, `guzzle3`, `guzzle4`, `httpful`,
+Additionally, the type can be either: `buzz`, `curl`, `file_get_contents`, `fopen`, `guzzle`, `guzzle_http`, `httpful`,
 `socket`, `zend1` or `zend2`.
 
 ## Configuration
