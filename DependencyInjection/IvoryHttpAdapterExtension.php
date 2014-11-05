@@ -29,6 +29,18 @@ use Symfony\Component\HttpKernel\DependencyInjection\ConfigurableExtension;
 class IvoryHttpAdapterExtension extends ConfigurableExtension
 {
     /**
+     * Creates a parameter name.
+     *
+     * @param string|null $suffix The suffix.
+     *
+     * @return string The parameter name.
+     */
+    public static function createParameterName($suffix = null)
+    {
+        return '%'.self::createServiceName($suffix).'%';
+    }
+
+    /**
      * Creates a service name.
      *
      * @param string|null $suffix The suffix.
@@ -47,6 +59,10 @@ class IvoryHttpAdapterExtension extends ConfigurableExtension
     {
         $loader = new XmlFileLoader($container, new FileLocator(__DIR__.'/../Resources/config'));
         $loader->load('adapters.xml');
+
+        if ($container->getParameter('kernel.debug')) {
+            $loader->load('data_collector.xml');
+        }
 
         $this->loadAdapters($config, $container, $loader);
     }
@@ -75,14 +91,12 @@ class IvoryHttpAdapterExtension extends ConfigurableExtension
             $config['default'] = key($config['adapters']);
         }
 
-        $adapters = array();
         foreach ($config['adapters'] as $name => $adapter) {
-            $adapters[] = $name;
             $this->loadAdapter($name, $adapter, $config['configs'], $container);
             $this->loadSubscribers($name, $adapter, $config['subscribers'], $container, $loader);
         }
 
-        $container->setParameter(RegisterListenerCompilerPass::PARAMETER, $adapters);
+        $container->setParameter(RegisterListenerCompilerPass::PARAMETER, array_keys($config['adapters']));
         $container->setAlias(self::createServiceName(), self::createServiceName($config['default']));
     }
 
@@ -96,8 +110,9 @@ class IvoryHttpAdapterExtension extends ConfigurableExtension
      */
     private function loadAdapter($name, array $adapter, array $configs, ContainerBuilder $container)
     {
-        $eventDispatcher = self::createServiceName($name.'.event_dispatcher');
-        $configuration = self::createServiceName($name.'.configuration');
+        $httpAdapter = self::createServiceName($name);
+        $configuration = $httpAdapter.'.configuration';
+        $eventDispatcher = $httpAdapter.'.event_dispatcher';
 
         $container->setDefinition(
             $eventDispatcher,
@@ -108,10 +123,20 @@ class IvoryHttpAdapterExtension extends ConfigurableExtension
             $this->createConfigurationDefinition($adapter, $configs, $eventDispatcher)
         );
 
-        $container->setDefinition(
-            $adapterName = self::createServiceName($name),
-            $this->createAdapterDefinition($adapter, $configuration)
-        );
+        if ($container->getParameter('kernel.debug')) {
+            $wrappedHttpAdapter = $httpAdapter.'.wrapped';
+
+            $container->setDefinition($wrappedHttpAdapter, $this->createAdapterDefinition($adapter, $configuration));
+            $container->setDefinition(
+                $httpAdapter,
+                new Definition(
+                    self::createParameterName('stopwatch.class'),
+                    array(new Reference($wrappedHttpAdapter), new Reference('debug.stopwatch'))
+                )
+            );
+        } else {
+            $container->setDefinition($httpAdapter, $this->createAdapterDefinition($adapter, $configuration));
+        }
     }
 
     /**
@@ -130,6 +155,10 @@ class IvoryHttpAdapterExtension extends ConfigurableExtension
         ContainerBuilder $container,
         LoaderInterface $loader
     ) {
+        if ($container->getParameter('kernel.debug')) {
+            $subscribers['debug'] = null;
+        }
+
         foreach (array_merge($subscribers, $adapter['subscribers']) as $subscriberName => $subscriber) {
             $loader->load('subscribers/'.$subscriberName.'.xml');
 
@@ -151,7 +180,7 @@ class IvoryHttpAdapterExtension extends ConfigurableExtension
     private function createAdapterDefinition(array $adapter, $configuration)
     {
         $definition = new DefinitionDecorator(self::createServiceName('abstract'));
-        $definition->setClass('%'.self::createServiceName($adapter['type'].'.class').'%');
+        $definition->setClass(self::createParameterName($adapter['type'].'.class'));
 
         $definition->addMethodCall(
             'setConfiguration',
@@ -222,6 +251,10 @@ class IvoryHttpAdapterExtension extends ConfigurableExtension
 
             case 'redirect':
                 $this->configureRedirectSubscriberDefinition($definition, $configuration);
+                break;
+
+            case 'stopwatch':
+                $this->configureStopwatchSubscriberDefinition($definition, $configuration);
                 break;
         }
 
@@ -303,6 +336,17 @@ class IvoryHttpAdapterExtension extends ConfigurableExtension
         if (isset($redirect['throw_exception'])) {
             $definition->addMethodCall('setThrowException', array($redirect['throw_exception']));
         }
+    }
+
+    /**
+     * Configures the stopwatch subscriber definition.
+     *
+     * @param \Symfony\Component\DependencyInjection\Definition $definition The definition.
+     * @param string|null                                       $stopwatch  The stopwatch.
+     */
+    private function configureStopwatchSubscriberDefinition(Definition $definition, $stopwatch = null)
+    {
+        $definition->setArguments(array(new Reference($stopwatch ?: 'debug.stopwatch')));
     }
 
     /**

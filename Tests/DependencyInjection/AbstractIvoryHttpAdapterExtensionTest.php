@@ -32,6 +32,7 @@ abstract class AbstractIvoryHttpAdapterExtensionTest extends \PHPUnit_Framework_
     protected function setUp()
     {
         $this->container = new ContainerBuilder();
+        $this->container->setParameter('kernel.debug', false);
         $this->container->addCompilerPass(new RegisterListenerCompilerPass());
         $this->container->registerExtension($httpAdapter = new IvoryHttpAdapterExtension());
         $this->container->loadFromExtension($httpAdapter->getAlias());
@@ -63,6 +64,36 @@ abstract class AbstractIvoryHttpAdapterExtensionTest extends \PHPUnit_Framework_
         $this->assertNoListeners($httpAdapter);
 
         $this->assertSame($httpAdapter, $this->container->get('ivory.http_adapter'));
+    }
+
+    public function testDebugHttpAdapter()
+    {
+        $this->container->setParameter('kernel.debug', true);
+        $this->container->set('debug.stopwatch', $this->getMock('Symfony\Component\Stopwatch\Stopwatch'));
+        $this->container->compile();
+
+        $this->assertInstanceOf(
+            'Ivory\HttpAdapter\StopwatchHttpAdapter',
+            $httpAdapter = $this->container->get('ivory.http_adapter')
+        );
+
+        $stopwatchListener = $this->assertListener(
+            $httpAdapter,
+            Events::PRE_SEND,
+            'Ivory\HttpAdapter\Event\Subscriber\StopwatchSubscriber',
+            false
+        );
+
+        $this->assertSame($stopwatchListener->getStopwatch(), $this->container->get('debug.stopwatch'));
+
+        $dataCollector = $this->assertListener(
+            $httpAdapter,
+            Events::PRE_SEND,
+            'Ivory\HttpAdapterBundle\DataCollector\IvoryHttpAdapterDataCollector',
+            false
+        );
+
+        $this->assertSame($dataCollector, $this->container->get('ivory.http_adapter.data_collector'));
     }
 
     /**
@@ -145,9 +176,10 @@ abstract class AbstractIvoryHttpAdapterExtensionTest extends \PHPUnit_Framework_
         $this->loadConfiguration($this->container, 'global_basic_auth');
         $this->container->compile();
 
-        $this->assertInstanceOf(
-            'Ivory\HttpAdapter\Event\Subscriber\BasicAuthSubscriber',
-            $listener = $this->getListener($this->container->get('ivory.http_adapter'), Events::PRE_SEND)
+        $listener = $this->assertListener(
+            $this->container->get('ivory.http_adapter'),
+            Events::PRE_SEND,
+            'Ivory\HttpAdapter\Event\Subscriber\BasicAuthSubscriber'
         );
 
         $this->assertSame('foo', $listener->getUsername());
@@ -160,9 +192,10 @@ abstract class AbstractIvoryHttpAdapterExtensionTest extends \PHPUnit_Framework_
         $this->loadConfiguration($this->container, 'global_basic_auth_with_matcher');
         $this->container->compile();
 
-        $this->assertInstanceOf(
-            'Ivory\HttpAdapter\Event\Subscriber\BasicAuthSubscriber',
-            $listener = $this->getListener($this->container->get('ivory.http_adapter'), Events::PRE_SEND)
+        $listener = $this->assertListener(
+            $this->container->get('ivory.http_adapter'),
+            Events::PRE_SEND,
+            'Ivory\HttpAdapter\Event\Subscriber\BasicAuthSubscriber'
         );
 
         $this->assertSame('domain.com', $listener->getMatcher());
@@ -174,9 +207,10 @@ abstract class AbstractIvoryHttpAdapterExtensionTest extends \PHPUnit_Framework_
         $this->loadConfiguration($this->container, 'global_cookie');
         $this->container->compile();
 
-        $this->assertInstanceOf(
-            'Ivory\HttpAdapter\Event\Subscriber\CookieSubscriber',
-            $listener = $this->getListener($this->container->get('ivory.http_adapter'), Events::PRE_SEND)
+        $listener = $this->assertListener(
+            $this->container->get('ivory.http_adapter'),
+            Events::PRE_SEND,
+            'Ivory\HttpAdapter\Event\Subscriber\CookieSubscriber'
         );
 
         $this->assertInstanceOf(
@@ -198,9 +232,10 @@ abstract class AbstractIvoryHttpAdapterExtensionTest extends \PHPUnit_Framework_
         $this->loadConfiguration($this->container, 'global_cookie_with_file');
         $this->container->compile();
 
-        $this->assertInstanceOf(
-            'Ivory\HttpAdapter\Event\Subscriber\CookieSubscriber',
-            $listener = $this->getListener($this->container->get('ivory.http_adapter'), Events::PRE_SEND)
+        $listener = $this->assertListener(
+            $this->container->get('ivory.http_adapter'),
+            Events::PRE_SEND,
+            'Ivory\HttpAdapter\Event\Subscriber\CookieSubscriber'
         );
 
         $this->assertInstanceOf(
@@ -239,9 +274,10 @@ abstract class AbstractIvoryHttpAdapterExtensionTest extends \PHPUnit_Framework_
         $this->loadConfiguration($this->container, 'global_cookie_with_session');
         $this->container->compile();
 
-        $this->assertInstanceOf(
-            'Ivory\HttpAdapter\Event\Subscriber\CookieSubscriber',
-            $listener = $this->getListener($this->container->get('ivory.http_adapter'), Events::PRE_SEND)
+        $listener = $this->assertListener(
+            $this->container->get('ivory.http_adapter'),
+            Events::PRE_SEND,
+            'Ivory\HttpAdapter\Event\Subscriber\CookieSubscriber'
         );
 
         $this->assertInstanceOf(
@@ -263,9 +299,10 @@ abstract class AbstractIvoryHttpAdapterExtensionTest extends \PHPUnit_Framework_
         $this->loadConfiguration($this->container, 'global_history');
         $this->container->compile();
 
-        $this->assertInstanceOf(
-            'Ivory\HttpAdapter\Event\Subscriber\HistorySubscriber',
-            $listener = $this->getListener($this->container->get('ivory.http_adapter'), Events::PRE_SEND)
+        $listener = $this->assertListener(
+            $this->container->get('ivory.http_adapter'),
+            Events::PRE_SEND,
+            'Ivory\HttpAdapter\Event\Subscriber\HistorySubscriber'
         );
 
         $this->assertInstanceOf('Ivory\HttpAdapter\Event\History\Journal', $journal = $listener->getJournal());
@@ -283,9 +320,10 @@ abstract class AbstractIvoryHttpAdapterExtensionTest extends \PHPUnit_Framework_
         $this->loadConfiguration($this->container, 'global_history_with_service');
         $this->container->compile();
 
-        $this->assertInstanceOf(
-            'Ivory\HttpAdapter\Event\Subscriber\HistorySubscriber',
-            $listener = $this->getListener($this->container->get('ivory.http_adapter'), Events::PRE_SEND)
+        $listener = $this->assertListener(
+            $this->container->get('ivory.http_adapter'),
+            Events::PRE_SEND,
+            'Ivory\HttpAdapter\Event\Subscriber\HistorySubscriber'
         );
 
         $this->assertSame($listener->getJournal(), $this->container->get('custom_journal'));
@@ -297,9 +335,10 @@ abstract class AbstractIvoryHttpAdapterExtensionTest extends \PHPUnit_Framework_
         $this->loadConfiguration($this->container, 'global_logger');
         $this->container->compile();
 
-        $this->assertInstanceOf(
-            'Ivory\HttpAdapter\Event\Subscriber\LoggerSubscriber',
-            $listener = $this->getListener($this->container->get('ivory.http_adapter'), Events::PRE_SEND)
+        $listener = $this->assertListener(
+            $this->container->get('ivory.http_adapter'),
+            Events::PRE_SEND,
+            'Ivory\HttpAdapter\Event\Subscriber\LoggerSubscriber'
         );
 
         $this->assertSame($listener->getLogger(), $this->container->get('logger'));
@@ -311,9 +350,10 @@ abstract class AbstractIvoryHttpAdapterExtensionTest extends \PHPUnit_Framework_
         $this->loadConfiguration($this->container, 'global_logger_with_service');
         $this->container->compile();
 
-        $this->assertInstanceOf(
-            'Ivory\HttpAdapter\Event\Subscriber\LoggerSubscriber',
-            $listener = $this->getListener($this->container->get('ivory.http_adapter'), Events::PRE_SEND)
+        $listener = $this->assertListener(
+            $this->container->get('ivory.http_adapter'),
+            Events::PRE_SEND,
+            'Ivory\HttpAdapter\Event\Subscriber\LoggerSubscriber'
         );
 
         $this->assertSame($listener->getLogger(), $this->container->get('custom_logger'));
@@ -324,9 +364,10 @@ abstract class AbstractIvoryHttpAdapterExtensionTest extends \PHPUnit_Framework_
         $this->loadConfiguration($this->container, 'global_redirect');
         $this->container->compile();
 
-        $this->assertInstanceOf(
-            'Ivory\HttpAdapter\Event\Subscriber\RedirectSubscriber',
-            $listener = $this->getListener($this->container->get('ivory.http_adapter'), Events::POST_SEND)
+        $listener = $this->assertListener(
+            $this->container->get('ivory.http_adapter'),
+            Events::POST_SEND,
+            'Ivory\HttpAdapter\Event\Subscriber\RedirectSubscriber'
         );
 
         $this->assertSame(5, $listener->getMax());
@@ -339,9 +380,10 @@ abstract class AbstractIvoryHttpAdapterExtensionTest extends \PHPUnit_Framework_
         $this->loadConfiguration($this->container, 'global_redirect_with_configuration');
         $this->container->compile();
 
-        $this->assertInstanceOf(
-            'Ivory\HttpAdapter\Event\Subscriber\RedirectSubscriber',
-            $listener = $this->getListener($this->container->get('ivory.http_adapter'), Events::POST_SEND)
+        $listener = $this->assertListener(
+            $this->container->get('ivory.http_adapter'),
+            Events::POST_SEND,
+            'Ivory\HttpAdapter\Event\Subscriber\RedirectSubscriber'
         );
 
         $this->assertSame(3, $listener->getMax());
@@ -354,9 +396,10 @@ abstract class AbstractIvoryHttpAdapterExtensionTest extends \PHPUnit_Framework_
         $this->loadConfiguration($this->container, 'global_retry');
         $this->container->compile();
 
-        $this->assertInstanceOf(
-            'Ivory\HttpAdapter\Event\Subscriber\RetrySubscriber',
-            $listener = $this->getListener($this->container->get('ivory.http_adapter'), Events::EXCEPTION)
+        $this->assertListener(
+            $this->container->get('ivory.http_adapter'),
+            Events::EXCEPTION,
+            'Ivory\HttpAdapter\Event\Subscriber\RetrySubscriber'
         );
     }
 
@@ -365,10 +408,41 @@ abstract class AbstractIvoryHttpAdapterExtensionTest extends \PHPUnit_Framework_
         $this->loadConfiguration($this->container, 'global_status_code');
         $this->container->compile();
 
-        $this->assertInstanceOf(
-            'Ivory\HttpAdapter\Event\Subscriber\StatusCodeSubscriber',
-            $listener = $this->getListener($this->container->get('ivory.http_adapter'), Events::POST_SEND)
+        $this->assertListener(
+            $this->container->get('ivory.http_adapter'),
+            Events::POST_SEND,
+            'Ivory\HttpAdapter\Event\Subscriber\StatusCodeSubscriber'
         );
+    }
+
+    public function testGlobalStopwatchSubscriber()
+    {
+        $this->container->set('debug.stopwatch', $this->getMock('Symfony\Component\Stopwatch\Stopwatch'));
+        $this->loadConfiguration($this->container, 'global_stopwatch');
+        $this->container->compile();
+
+        $listener = $this->assertListener(
+            $this->container->get('ivory.http_adapter'),
+            Events::PRE_SEND,
+            'Ivory\HttpAdapter\Event\Subscriber\StopwatchSubscriber'
+        );
+
+        $this->assertSame($listener->getStopwatch(), $this->container->get('debug.stopwatch'));
+    }
+
+    public function testGlobalStopwatchSubscriberWithService()
+    {
+        $this->container->set('custom_stopwatch', $this->getMock('Symfony\Component\Stopwatch\Stopwatch'));
+        $this->loadConfiguration($this->container, 'global_stopwatch_with_service');
+        $this->container->compile();
+
+        $listener = $this->assertListener(
+            $this->container->get('ivory.http_adapter'),
+            Events::PRE_SEND,
+            'Ivory\HttpAdapter\Event\Subscriber\StopwatchSubscriber'
+        );
+
+        $this->assertSame($listener->getStopwatch(), $this->container->get('custom_stopwatch'));
     }
 
     public function testLocalProtocolVersion()
@@ -451,9 +525,10 @@ abstract class AbstractIvoryHttpAdapterExtensionTest extends \PHPUnit_Framework_
         $this->loadConfiguration($this->container, 'local_basic_auth');
         $this->container->compile();
 
-        $this->assertInstanceOf(
-            'Ivory\HttpAdapter\Event\Subscriber\BasicAuthSubscriber',
-            $localListener = $this->getListener($this->container->get('ivory.http_adapter.local'), Events::PRE_SEND)
+        $localListener = $this->assertListener(
+            $this->container->get('ivory.http_adapter.local'),
+            Events::PRE_SEND,
+            'Ivory\HttpAdapter\Event\Subscriber\BasicAuthSubscriber'
         );
 
         $this->assertSame('foo', $localListener->getUsername());
@@ -468,9 +543,10 @@ abstract class AbstractIvoryHttpAdapterExtensionTest extends \PHPUnit_Framework_
         $this->loadConfiguration($this->container, 'local_basic_auth_with_matcher');
         $this->container->compile();
 
-        $this->assertInstanceOf(
-            'Ivory\HttpAdapter\Event\Subscriber\BasicAuthSubscriber',
-            $localListener = $this->getListener($this->container->get('ivory.http_adapter.local'), Events::PRE_SEND)
+        $localListener = $this->assertListener(
+            $this->container->get('ivory.http_adapter.local'),
+            Events::PRE_SEND,
+            'Ivory\HttpAdapter\Event\Subscriber\BasicAuthSubscriber'
         );
 
         $this->assertSame('foo', $localListener->getUsername());
@@ -486,9 +562,10 @@ abstract class AbstractIvoryHttpAdapterExtensionTest extends \PHPUnit_Framework_
         $this->loadConfiguration($this->container, 'local_cookie');
         $this->container->compile();
 
-        $this->assertInstanceOf(
-            'Ivory\HttpAdapter\Event\Subscriber\CookieSubscriber',
-            $listener = $this->getListener($this->container->get('ivory.http_adapter.local'), Events::PRE_SEND)
+        $listener = $this->assertListener(
+            $this->container->get('ivory.http_adapter.local'),
+            Events::PRE_SEND,
+            'Ivory\HttpAdapter\Event\Subscriber\CookieSubscriber'
         );
 
         $this->assertInstanceOf(
@@ -512,9 +589,10 @@ abstract class AbstractIvoryHttpAdapterExtensionTest extends \PHPUnit_Framework_
         $this->loadConfiguration($this->container, 'local_cookie_with_file');
         $this->container->compile();
 
-        $this->assertInstanceOf(
-            'Ivory\HttpAdapter\Event\Subscriber\CookieSubscriber',
-            $listener = $this->getListener($this->container->get('ivory.http_adapter.local'), Events::PRE_SEND)
+        $listener = $this->assertListener(
+            $this->container->get('ivory.http_adapter.local'),
+            Events::PRE_SEND,
+            'Ivory\HttpAdapter\Event\Subscriber\CookieSubscriber'
         );
 
         $this->assertInstanceOf(
@@ -555,9 +633,10 @@ abstract class AbstractIvoryHttpAdapterExtensionTest extends \PHPUnit_Framework_
         $this->loadConfiguration($this->container, 'local_cookie_with_session');
         $this->container->compile();
 
-        $this->assertInstanceOf(
-            'Ivory\HttpAdapter\Event\Subscriber\CookieSubscriber',
-            $listener = $this->getListener($this->container->get('ivory.http_adapter.local'), Events::PRE_SEND)
+        $listener = $this->assertListener(
+            $this->container->get('ivory.http_adapter.local'),
+            Events::PRE_SEND,
+            'Ivory\HttpAdapter\Event\Subscriber\CookieSubscriber'
         );
 
         $this->assertInstanceOf(
@@ -581,9 +660,10 @@ abstract class AbstractIvoryHttpAdapterExtensionTest extends \PHPUnit_Framework_
         $this->loadConfiguration($this->container, 'local_history');
         $this->container->compile();
 
-        $this->assertInstanceOf(
-            'Ivory\HttpAdapter\Event\Subscriber\HistorySubscriber',
-            $listener = $this->getListener($this->container->get('ivory.http_adapter.local'), Events::PRE_SEND)
+        $listener = $this->assertListener(
+            $this->container->get('ivory.http_adapter.local'),
+            Events::PRE_SEND,
+            'Ivory\HttpAdapter\Event\Subscriber\HistorySubscriber'
         );
 
         $this->assertInstanceOf('Ivory\HttpAdapter\Event\History\Journal', $journal = $listener->getJournal());
@@ -603,9 +683,10 @@ abstract class AbstractIvoryHttpAdapterExtensionTest extends \PHPUnit_Framework_
         $this->loadConfiguration($this->container, 'local_history_with_service');
         $this->container->compile();
 
-        $this->assertInstanceOf(
-            'Ivory\HttpAdapter\Event\Subscriber\HistorySubscriber',
-            $listener = $this->getListener($this->container->get('ivory.http_adapter.local'), Events::PRE_SEND)
+        $listener = $this->assertListener(
+            $this->container->get('ivory.http_adapter.local'),
+            Events::PRE_SEND,
+            'Ivory\HttpAdapter\Event\Subscriber\HistorySubscriber'
         );
 
         $this->assertSame($listener->getJournal(), $this->container->get('custom_journal'));
@@ -619,9 +700,10 @@ abstract class AbstractIvoryHttpAdapterExtensionTest extends \PHPUnit_Framework_
         $this->loadConfiguration($this->container, 'local_logger');
         $this->container->compile();
 
-        $this->assertInstanceOf(
-            'Ivory\HttpAdapter\Event\Subscriber\LoggerSubscriber',
-            $listener = $this->getListener($this->container->get('ivory.http_adapter.local'), Events::PRE_SEND)
+        $listener = $this->assertListener(
+            $this->container->get('ivory.http_adapter.local'),
+            Events::PRE_SEND,
+            'Ivory\HttpAdapter\Event\Subscriber\LoggerSubscriber'
         );
 
         $this->assertSame($listener->getLogger(), $this->container->get('logger'));
@@ -635,9 +717,10 @@ abstract class AbstractIvoryHttpAdapterExtensionTest extends \PHPUnit_Framework_
         $this->loadConfiguration($this->container, 'local_logger_with_service');
         $this->container->compile();
 
-        $this->assertInstanceOf(
-            'Ivory\HttpAdapter\Event\Subscriber\LoggerSubscriber',
-            $listener = $this->getListener($this->container->get('ivory.http_adapter.local'), Events::PRE_SEND)
+        $listener = $this->assertListener(
+            $this->container->get('ivory.http_adapter.local'),
+            Events::PRE_SEND,
+            'Ivory\HttpAdapter\Event\Subscriber\LoggerSubscriber'
         );
 
         $this->assertSame($listener->getLogger(), $this->container->get('custom_logger'));
@@ -650,9 +733,10 @@ abstract class AbstractIvoryHttpAdapterExtensionTest extends \PHPUnit_Framework_
         $this->loadConfiguration($this->container, 'local_redirect');
         $this->container->compile();
 
-        $this->assertInstanceOf(
-            'Ivory\HttpAdapter\Event\Subscriber\RedirectSubscriber',
-            $listener = $this->getListener($this->container->get('ivory.http_adapter.local'), Events::POST_SEND)
+        $listener = $this->assertListener(
+            $this->container->get('ivory.http_adapter.local'),
+            Events::POST_SEND,
+            'Ivory\HttpAdapter\Event\Subscriber\RedirectSubscriber'
         );
 
         $this->assertSame(5, $listener->getMax());
@@ -667,9 +751,10 @@ abstract class AbstractIvoryHttpAdapterExtensionTest extends \PHPUnit_Framework_
         $this->loadConfiguration($this->container, 'local_redirect_with_configuration');
         $this->container->compile();
 
-        $this->assertInstanceOf(
-            'Ivory\HttpAdapter\Event\Subscriber\RedirectSubscriber',
-            $listener = $this->getListener($this->container->get('ivory.http_adapter.local'), Events::POST_SEND)
+        $listener = $this->assertListener(
+            $this->container->get('ivory.http_adapter.local'),
+            Events::POST_SEND,
+            'Ivory\HttpAdapter\Event\Subscriber\RedirectSubscriber'
         );
 
         $this->assertSame(3, $listener->getMax());
@@ -684,9 +769,10 @@ abstract class AbstractIvoryHttpAdapterExtensionTest extends \PHPUnit_Framework_
         $this->loadConfiguration($this->container, 'local_retry');
         $this->container->compile();
 
-        $this->assertInstanceOf(
-            'Ivory\HttpAdapter\Event\Subscriber\RetrySubscriber',
-            $listener = $this->getListener($this->container->get('ivory.http_adapter.local'), Events::EXCEPTION)
+        $listener = $this->assertListener(
+            $this->container->get('ivory.http_adapter.local'),
+            Events::EXCEPTION,
+            'Ivory\HttpAdapter\Event\Subscriber\RetrySubscriber'
         );
 
         $this->assertNoListeners($this->container->get('ivory.http_adapter.global'));
@@ -697,10 +783,45 @@ abstract class AbstractIvoryHttpAdapterExtensionTest extends \PHPUnit_Framework_
         $this->loadConfiguration($this->container, 'local_status_code');
         $this->container->compile();
 
-        $this->assertInstanceOf(
-            'Ivory\HttpAdapter\Event\Subscriber\StatusCodeSubscriber',
-            $listener = $this->getListener($this->container->get('ivory.http_adapter.local'), Events::POST_SEND)
+        $listener = $this->assertListener(
+            $this->container->get('ivory.http_adapter.local'),
+            Events::POST_SEND,
+            'Ivory\HttpAdapter\Event\Subscriber\StatusCodeSubscriber'
         );
+
+        $this->assertNoListeners($this->container->get('ivory.http_adapter.global'));
+    }
+
+    public function testLocalStopwatchSubscriber()
+    {
+        $this->container->set('debug.stopwatch', $this->getMock('Symfony\Component\Stopwatch\Stopwatch'));
+        $this->loadConfiguration($this->container, 'local_stopwatch');
+        $this->container->compile();
+
+        $listener = $this->assertListener(
+            $this->container->get('ivory.http_adapter.local'),
+            Events::PRE_SEND,
+            'Ivory\HttpAdapter\Event\Subscriber\StopwatchSubscriber'
+        );
+
+        $this->assertSame($listener->getStopwatch(), $this->container->get('debug.stopwatch'));
+
+        $this->assertNoListeners($this->container->get('ivory.http_adapter.global'));
+    }
+
+    public function testLocalStopwatchSubscriberWithService()
+    {
+        $this->container->set('custom_stopwatch', $this->getMock('Symfony\Component\Stopwatch\Stopwatch'));
+        $this->loadConfiguration($this->container, 'local_stopwatch_with_service');
+        $this->container->compile();
+
+        $listener = $this->assertListener(
+            $this->container->get('ivory.http_adapter.local'),
+            Events::PRE_SEND,
+            'Ivory\HttpAdapter\Event\Subscriber\StopwatchSubscriber'
+        );
+
+        $this->assertSame($listener->getStopwatch(), $this->container->get('custom_stopwatch'));
 
         $this->assertNoListeners($this->container->get('ivory.http_adapter.global'));
     }
@@ -710,9 +831,10 @@ abstract class AbstractIvoryHttpAdapterExtensionTest extends \PHPUnit_Framework_
         $this->loadConfiguration($this->container, 'listener');
         $this->container->compile();
 
-        $this->assertInstanceOf(
-            'Ivory\HttpAdapter\Event\Subscriber\StatusCodeSubscriber',
-            $listener = $this->getListener($this->container->get('ivory.http_adapter'), Events::POST_SEND)
+        $listener = $this->assertListener(
+            $this->container->get('ivory.http_adapter'),
+            Events::POST_SEND,
+            'Ivory\HttpAdapter\Event\Subscriber\StatusCodeSubscriber'
         );
 
         $this->assertSame($listener, $this->container->get('my_listener'));
@@ -723,9 +845,10 @@ abstract class AbstractIvoryHttpAdapterExtensionTest extends \PHPUnit_Framework_
         $this->loadConfiguration($this->container, 'listener_with_adapter');
         $this->container->compile();
 
-        $this->assertInstanceOf(
-            'Ivory\HttpAdapter\Event\Subscriber\StatusCodeSubscriber',
-            $listener = $this->getListener($this->container->get('ivory.http_adapter.local'), Events::POST_SEND)
+        $listener = $this->assertListener(
+            $this->container->get('ivory.http_adapter.local'),
+            Events::POST_SEND,
+            'Ivory\HttpAdapter\Event\Subscriber\StatusCodeSubscriber'
         );
 
         $this->assertSame($listener, $this->container->get('my_listener'));
@@ -738,9 +861,10 @@ abstract class AbstractIvoryHttpAdapterExtensionTest extends \PHPUnit_Framework_
         $this->loadConfiguration($this->container, 'subscriber');
         $this->container->compile();
 
-        $this->assertInstanceOf(
-            'Ivory\HttpAdapter\Event\Subscriber\StatusCodeSubscriber',
-            $listener = $this->getListener($this->container->get('ivory.http_adapter'), Events::POST_SEND)
+        $listener = $this->assertListener(
+            $this->container->get('ivory.http_adapter'),
+            Events::POST_SEND,
+            'Ivory\HttpAdapter\Event\Subscriber\StatusCodeSubscriber'
         );
 
         $this->assertSame($listener, $this->container->get('my_subscriber'));
@@ -751,9 +875,10 @@ abstract class AbstractIvoryHttpAdapterExtensionTest extends \PHPUnit_Framework_
         $this->loadConfiguration($this->container, 'subscriber_with_adapter');
         $this->container->compile();
 
-        $this->assertInstanceOf(
-            'Ivory\HttpAdapter\Event\Subscriber\StatusCodeSubscriber',
-            $listener = $this->getListener($this->container->get('ivory.http_adapter.local'), Events::POST_SEND)
+        $listener = $this->assertListener(
+            $this->container->get('ivory.http_adapter.local'),
+            Events::POST_SEND,
+            'Ivory\HttpAdapter\Event\Subscriber\StatusCodeSubscriber'
         );
 
         $this->assertSame($listener, $this->container->get('my_subscriber'));
@@ -787,24 +912,30 @@ abstract class AbstractIvoryHttpAdapterExtensionTest extends \PHPUnit_Framework_
     }
 
     /**
-     * Gets the listener.
+     * Asserts a listener.
      *
      * @param \Ivory\HttpAdapter\HttpAdapterInterface $httpAdapter The http adapter.
      * @param string                                  $eventName   The event name.
+     * @param string                                  $class       The class.
+     * @param boolean                                 $unicity     The unicity.
      *
      * @return object The listener.
      */
-    private function getListener($httpAdapter, $eventName)
+    private function assertListener($httpAdapter, $eventName, $class, $unicity = true)
     {
-        $this->assertCount(
-            1,
-            $listeners = $httpAdapter->getConfiguration()->getEventDispatcher()->getListeners($eventName)
-        );
+        $listeners = $httpAdapter->getConfiguration()->getEventDispatcher()->getListeners($eventName);
 
-        $this->assertArrayHasKey(0, $listeners);
-        $this->assertArrayHasKey(0, $listeners[0]);
+        if ($unicity) {
+            $this->assertCount(1, $listeners);
+        }
 
-        return $listeners[0][0];
+        foreach ($listeners as $listener) {
+            if ($listener[0] instanceof $class) {
+                return $listener[0];
+            }
+        }
+
+        $this->fail();
     }
 
     /**

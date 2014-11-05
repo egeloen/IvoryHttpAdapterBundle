@@ -1,0 +1,67 @@
+{% macro format_value(value) %}
+    {% if value is not empty %}
+        {% if value is iterable %}
+            {{ value | json_encode }}
+        {% else %}
+            {{ value }}
+        {% endif %}
+    {% else %}
+        None
+    {% endif %}
+{% endmacro %}
+
+{% import _self as helper %}
+
+<table>
+    <tbody>
+        <tr>
+            <td>Request</td>
+            <td>
+                <table class="ivory-http-adapter-panel-request">
+                    <thead>
+                        <tr>
+                            <th>URL</th>
+                            <th>Method</th>
+                            <th>Time</th>
+                            <th>Adapter</th>
+                            <th>Protocol Version</th>
+                            <th>Headers</th>
+                            <th>Raw Datas</th>
+                            <th>Datas</th>
+                            <th>Files</th>
+                            <th>Parameters</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>{{ item.request.url }}</td>
+                            <td>{{ item.request.method }}</td>
+                            <td>{{ (item.time * 1000) | round }} ms</td>
+                            <td>{{ item.adapter }}</td>
+                            <td>{{ item.request.protocol_version }}</td>
+                            <td>{{ helper.format_value(item.request.headers) }}</td>
+                            <td>{{ helper.format_value(item.request.raw_datas) }}</td>
+                            <td>{{ helper.format_value(item.request.datas) }}</td>
+                            <td>{{ helper.format_value(item.request.files) }}</td>
+                            <td>{{ helper.format_value(item.request.parameters) }}</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </td>
+        </tr>
+        <tr>
+            <td>{% block title %}{% endblock %}</td>
+            <td>
+                <table class="ivory-http-adapter-panel-request">
+                    <thead>
+                        {% block table_head %}{% endblock %}
+                    </thead>
+                    <tbody>
+                        {% block table_body %}{% endblock %}
+                    </tbody>
+                </table>
+                {% block table_extra %}{% endblock %}
+            </td>
+        </tr>
+    </tbody>
+</table>
