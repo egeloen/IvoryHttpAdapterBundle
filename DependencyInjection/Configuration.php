@@ -44,7 +44,7 @@ class Configuration implements ConfigurationInterface
      *
      * @return \Symfony\Component\Config\Definition\Builder\NodeDefinition The adapters node.
      */
-    protected function createAdaptersNode()
+    private function createAdaptersNode()
     {
         return $this->createNode('adapters')
             ->useAttributeAsKey('name')
@@ -62,7 +62,7 @@ class Configuration implements ConfigurationInterface
      *
      * @return \Symfony\Component\Config\Definition\Builder\NodeDefinition The configs node.
      */
-    protected function createConfigsNode()
+    private function createConfigsNode()
     {
         return $this->createNode('configs')
             ->addDefaultsIfNotSet()
@@ -81,7 +81,7 @@ class Configuration implements ConfigurationInterface
      *
      * @return \Symfony\Component\Config\Definition\Builder\NodeDefinition The subscribers node.
      */
-    protected function createSubscribersNode()
+    private function createSubscribersNode()
     {
         return $this->createNode('subscribers')
             ->addDefaultsIfNotSet()
@@ -101,7 +101,7 @@ class Configuration implements ConfigurationInterface
      *
      * @return \Symfony\Component\Config\Definition\Builder\NodeDefinition The basic auth subscriber node.
      */
-    protected function createBasicAuthSubscriberNode()
+    private function createBasicAuthSubscriberNode()
     {
         return $this->createNode('basic_auth')
             ->children()
@@ -116,7 +116,7 @@ class Configuration implements ConfigurationInterface
      *
      * @return \Symfony\Component\Config\Definition\Builder\NodeDefinition The redirect subscriber node.
      */
-    protected function createRedirectSubscriberNode()
+    private function createRedirectSubscriberNode()
     {
         return $this->createNode('redirect')
             ->children()
@@ -133,7 +133,7 @@ class Configuration implements ConfigurationInterface
      *
      * @return \Symfony\Component\Config\Definition\Builder\NodeDefinition The node.
      */
-    protected function createNode($name)
+    private function createNode($name)
     {
         return $this->createTreeBuilder()->root($name);
     }
@@ -143,7 +143,7 @@ class Configuration implements ConfigurationInterface
      *
      * @return \Symfony\Component\Config\Definition\Builder\TreeBuilder The tree builder.
      */
-    protected function createTreeBuilder()
+    private function createTreeBuilder()
     {
         return new TreeBuilder();
     }

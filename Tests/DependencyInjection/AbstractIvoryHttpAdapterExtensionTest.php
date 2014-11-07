@@ -24,7 +24,7 @@ use Symfony\Component\DependencyInjection\ContainerBuilder;
 abstract class AbstractIvoryHttpAdapterExtensionTest extends \PHPUnit_Framework_TestCase
 {
     /** @var \Symfony\Component\DependencyInjection\ContainerBuilder */
-    protected $container;
+    private $container;
 
     /**
      * {@inheritdoc}
@@ -794,7 +794,7 @@ abstract class AbstractIvoryHttpAdapterExtensionTest extends \PHPUnit_Framework_
      *
      * @return object The listener.
      */
-    protected function getListener($httpAdapter, $eventName)
+    private function getListener($httpAdapter, $eventName)
     {
         $this->assertCount(
             1,
@@ -812,7 +812,7 @@ abstract class AbstractIvoryHttpAdapterExtensionTest extends \PHPUnit_Framework_
      *
      * @param \Ivory\HttpAdapter\HttpAdapterInterface $httpAdapter The http adapter.
      */
-    protected function assertNoListeners($httpAdapter)
+    private function assertNoListeners($httpAdapter)
     {
         $this->assertEmpty($httpAdapter->getConfiguration()->getEventDispatcher()->getListeners());
     }

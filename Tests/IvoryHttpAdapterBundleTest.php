@@ -20,7 +20,7 @@ use Ivory\HttpAdapterBundle\IvoryHttpAdapterBundle;
  */
 class IvoryHttpAdapterBundleTest extends \PHPUnit_Framework_TestCase
 {
-    protected $bundle;
+    private $bundle;
 
     protected function setUp()
     {
