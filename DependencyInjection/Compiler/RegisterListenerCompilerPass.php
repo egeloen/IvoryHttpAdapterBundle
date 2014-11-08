@@ -31,6 +31,17 @@ class RegisterListenerCompilerPass implements CompilerPassInterface
      */
     public function process(ContainerBuilder $container)
     {
+        $this->processListeners($container);
+        $this->processSubscribers($container);
+    }
+
+    /**
+     * Processes listeners.
+     *
+     * @param \Symfony\Component\DependencyInjection\ContainerBuilder $container The container builder.
+     */
+    private function processListeners(ContainerBuilder $container)
+    {
         foreach ($container->findTaggedServiceIds(self::LISTENER_TAG) as $id => $listeners) {
             foreach ($listeners as $listener) {
                 foreach ($this->getAdapters($listener, $container) as $adapter) {
@@ -47,7 +58,15 @@ class RegisterListenerCompilerPass implements CompilerPassInterface
                 }
             }
         }
+    }
 
+    /**
+     * Processes subscribers.
+     *
+     * @param \Symfony\Component\DependencyInjection\ContainerBuilder $container The container builder.
+     */
+    private function processSubscribers(ContainerBuilder $container)
+    {
         foreach ($container->findTaggedServiceIds(self::SUBSCRIBER_TAG) as $id => $subscribers) {
             foreach ($subscribers as $subscriber) {
                 foreach ($this->getAdapters($subscriber, $container) as $adapter) {
@@ -67,7 +86,7 @@ class RegisterListenerCompilerPass implements CompilerPassInterface
      *
      * @return array The adapters.
      */
-    protected function getAdapters(array $configuration, ContainerBuilder $container)
+    private function getAdapters(array $configuration, ContainerBuilder $container)
     {
         if (!isset($configuration['adapter'])) {
             $configuration['adapter'] = $container->getParameter(self::PARAMETER);
@@ -83,7 +102,7 @@ class RegisterListenerCompilerPass implements CompilerPassInterface
      *
      * @return string The event dispatcher name.
      */
-    protected function getEventDispatcherName($adapter)
+    private function getEventDispatcherName($adapter)
     {
         return IvoryHttpAdapterExtension::createServiceName($adapter.'.event_dispatcher');
     }

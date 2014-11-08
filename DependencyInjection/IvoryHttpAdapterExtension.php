@@ -58,7 +58,7 @@ class IvoryHttpAdapterExtension extends ConfigurableExtension
      * @param \Symfony\Component\DependencyInjection\ContainerBuilder $container The container.
      * @param \Symfony\Component\Config\Loader\LoaderInterface        $loader    The loader.
      */
-    protected function loadAdapters(array $config, ContainerBuilder $container, LoaderInterface $loader)
+    private function loadAdapters(array $config, ContainerBuilder $container, LoaderInterface $loader)
     {
         if (empty($config['adapters'])) {
             $config['adapters'] = array(
@@ -94,7 +94,7 @@ class IvoryHttpAdapterExtension extends ConfigurableExtension
      * @param array                                                   $configs   The global configuration.
      * @param \Symfony\Component\DependencyInjection\ContainerBuilder $container The container.
      */
-    protected function loadAdapter($name, array $adapter, array $configs, ContainerBuilder $container)
+    private function loadAdapter($name, array $adapter, array $configs, ContainerBuilder $container)
     {
         $eventDispatcher = self::createServiceName($name.'.event_dispatcher');
         $configuration = self::createServiceName($name.'.configuration');
@@ -123,7 +123,7 @@ class IvoryHttpAdapterExtension extends ConfigurableExtension
      * @param \Symfony\Component\DependencyInjection\ContainerBuilder $container   The container.
      * @param \Symfony\Component\Config\Loader\LoaderInterface        $loader      The loader.
      */
-    protected function loadSubscribers(
+    private function loadSubscribers(
         $name,
         array $adapter,
         array $subscribers,
@@ -148,7 +148,7 @@ class IvoryHttpAdapterExtension extends ConfigurableExtension
      *
      * @return \Symfony\Component\DependencyInjection\DefinitionDecorator The adapter definition.
      */
-    protected function createAdapterDefinition(array $adapter, $configuration)
+    private function createAdapterDefinition(array $adapter, $configuration)
     {
         $definition = new DefinitionDecorator(self::createServiceName('abstract'));
         $definition->setClass('%'.self::createServiceName($adapter['type'].'.class').'%');
@@ -170,7 +170,7 @@ class IvoryHttpAdapterExtension extends ConfigurableExtension
      *
      * @return \Symfony\Component\DependencyInjection\DefinitionDecorator The configuration definition.
      */
-    protected function createConfigurationDefinition(array $adapter, array $configs, $eventDispatcher)
+    private function createConfigurationDefinition(array $adapter, array $configs, $eventDispatcher)
     {
         $definition = new DefinitionDecorator(self::createServiceName('configuration'));
         $definition->addArgument(new Reference($eventDispatcher));
@@ -191,7 +191,7 @@ class IvoryHttpAdapterExtension extends ConfigurableExtension
      *
      * @return \Symfony\Component\DependencyInjection\DefinitionDecorator The subscriber definition.
      */
-    protected function createSubscriberDefinition(
+    private function createSubscriberDefinition(
         $adapterName,
         $subscriberName,
         $configuration,
@@ -234,7 +234,7 @@ class IvoryHttpAdapterExtension extends ConfigurableExtension
      * @param \Symfony\Component\DependencyInjection\Definition $definition The definition.
      * @param array                                             $basicAuth  The basic auth.
      */
-    protected function configureBasicAuthSubscriberDefinition(Definition $definition, array $basicAuth)
+    private function configureBasicAuthSubscriberDefinition(Definition $definition, array $basicAuth)
     {
         $definition->setArguments(array($basicAuth['username'], $basicAuth['password']));
 
@@ -249,7 +249,7 @@ class IvoryHttpAdapterExtension extends ConfigurableExtension
      * @param \Symfony\Component\DependencyInjection\Definition $definition The definition.
      * @param string|null                                       $cookieJar  The cookie jar.
      */
-    protected function configureCookieSubscriberDefinition(Definition $definition, $cookieJar = null)
+    private function configureCookieSubscriberDefinition(Definition $definition, $cookieJar = null)
     {
         if ($cookieJar === null) {
             $cookieJar = 'default';
@@ -268,7 +268,7 @@ class IvoryHttpAdapterExtension extends ConfigurableExtension
      * @param \Symfony\Component\DependencyInjection\Definition $definition The definition.
      * @param string|null                                       $journal    The journal.
      */
-    protected function configureHistorySubscriberDefinition(Definition $definition, $journal = null)
+    private function configureHistorySubscriberDefinition(Definition $definition, $journal = null)
     {
         $definition->setArguments(array(new Reference($journal ?: 'ivory.http_adapter.subscriber.history.journal')));
     }
@@ -279,7 +279,7 @@ class IvoryHttpAdapterExtension extends ConfigurableExtension
      * @param \Symfony\Component\DependencyInjection\Definition $definition The definition.
      * @param string|null                                       $logger     The logger.
      */
-    protected function configureLoggerSubscriberDefinition(Definition $definition, $logger = null)
+    private function configureLoggerSubscriberDefinition(Definition $definition, $logger = null)
     {
         $definition->setArguments(array(new Reference($logger ?: 'logger')));
     }
@@ -290,7 +290,7 @@ class IvoryHttpAdapterExtension extends ConfigurableExtension
      * @param \Symfony\Component\DependencyInjection\Definition $definition The definition.
      * @param array                                             $redirect   The redirect.
      */
-    protected function configureRedirectSubscriberDefinition(Definition $definition, array $redirect = array())
+    private function configureRedirectSubscriberDefinition(Definition $definition, array $redirect = array())
     {
         if (isset($redirect['max'])) {
             $definition->addMethodCall('setMax', array($redirect['max']));
@@ -312,7 +312,7 @@ class IvoryHttpAdapterExtension extends ConfigurableExtension
      *
      * @return string The method name.
      */
-    protected function getMethod($property)
+    private function getMethod($property)
     {
         return 'set'.str_replace('_', '', $property);
     }
