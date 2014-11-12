@@ -2,6 +2,7 @@
 
 ### 0.6.0 (????-??-??)
 
+ * 3bf5424 - Add stopwatch support
  * 2776675 - [Encapsulation] Move everything from protected to private (except for entry point)
 
 ### 0.5.0 (2014-11-05)
