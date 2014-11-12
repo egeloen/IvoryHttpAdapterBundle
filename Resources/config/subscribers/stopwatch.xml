@@ -5,13 +5,13 @@
     xsi:schemaLocation="http://symfony.com/schema/dic/services http://symfony.com/schema/dic/services/services-1.0.xsd"
 >
     <parameters>
-        <parameter key="ivory.http_adapter.subscriber.redirect.class">Ivory\HttpAdapter\Event\Subscriber\RedirectSubscriber</parameter>
+        <parameter key="ivory.http_adapter.subscriber.stopwatch.class">Ivory\HttpAdapter\Event\Subscriber\StopwatchSubscriber</parameter>
     </parameters>
 
     <services>
         <service
-            id="ivory.http_adapter.subscriber.redirect"
-            class="%ivory.http_adapter.subscriber.redirect.class%"
+            id="ivory.http_adapter.subscriber.stopwatch"
+            class="%ivory.http_adapter.subscriber.stopwatch.class%"
             abstract="true"
         />
     </services>

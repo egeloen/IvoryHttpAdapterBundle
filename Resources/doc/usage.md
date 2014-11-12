@@ -28,6 +28,9 @@ adapter, the first one in the list will be used.
 Additionally, the type can be either: `buzz`, `curl`, `file_get_contents`, `fopen`, `guzzle`, `guzzle_http`, `httpful`,
 `socket`, `zend1` or `zend2`.
 
+Finally, when you are in debug mode, the stopwatch http adapter and the stop watch subscriber are used in order to time
+your requests for all adapters.
+
 ## Configuration
 
 Each http adapters can be configured globally (for all http adapters) or locally (for a specific http adapter only).
@@ -83,6 +86,7 @@ ivory_http_adapter:
         redirect: ~
         retry: ~
         status_code: ~
+        stopwatch: ~
 ```
 
 ### Local subscribers
@@ -102,6 +106,7 @@ ivory_http_adapter:
                 redirect: ~
                 retry: ~
                 status_code: ~
+                stopwatch: ~
 ```
 
 ### Basic auth subscriber
@@ -163,6 +168,16 @@ redirect:
     max: 5
     strict: false
     throw_exception: true
+```
+
+### Stopwatch subscriber
+
+The stopwatch subscriber allows to monitor the adapter via the Symfony2 stopwatch component. In debug mode, this
+subscriber is automatically registered on all adapters in order to monitor them via the timeline. Additionally, you can
+register an other subscriber using your own stopwatch service with:
+
+``` yaml
+stopwatch: my_service_name
 ```
 
 ### Custom subscribers

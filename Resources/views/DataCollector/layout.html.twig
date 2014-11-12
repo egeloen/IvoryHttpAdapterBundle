@@ -1,0 +1,149 @@
+{% extends 'WebProfilerBundle:Profiler:layout.html.twig' %}
+
+{% block icon %}
+    <img
+        height="28"
+        alt="Ivory Http Adapter"
+        src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAIAAAACACAYAAADDPmHLAAAEv0lEQVR4Xu2dv2tVQRCFkxhEsLCwECwsLAQLCwvBwj/fQlGwsBAULCwECwsLQfDnXYjkhbz7sufu2bl7d79AqszO7H5zdmZyb8I7PuJraALHQ5+ewx8hgMFFgAAQwOAEBj8+FQABDE5g8ONvsQL8bThnm+O5uQ1PyUcAxhuAAHwwkzBPfO5iPCEAH2cE4GN50FOrLQABIABaQIQGqABGyswAPpi0AB9LZoAglpt8G0gLMKqDFuCDSQvwsaQFBLGkBRhBUwGMMA+5YgYwgmYG8MGkAvhYMgMEsWQGMIKmAhhhMgMEwWQG8IGmAvhYMgMEsWQGMIKmAhhhMgMEwWQG8IGmAvhYMgMEsWQGMIPeXEXd3IanhPEuwKhaBOCDyQzgY8kMEMSSGcAImgpghMlzgCCYzAA+0FQAH0tmgCCWzABG0FQAI8xDrn5OPzwNiqWEQQAKrQLbFh8E/Z7Oc2363txMtbkNFwhnd+mfPckaksWQh56Sv6+NDMliyEPPvE8YksWQh0YA590QAQzOAgEgANNcvS03+36VHPIyDHloZoDByx4CQAC0gDMN0AIGvwxLBNDis/htjaB1dyvlVDI+2zcCqJvAUu9STiVjBFCam5D1Uk4lYwQQksDSIFJOJWMEUJqbkPVSTiVjBBCSwNIgUk4l49Kd8QDmEsHVn0cgAIOqC1wggAletAgL8mVfigAQwCVRhV6I0GDMAMwAq5c8exEvc7g6DypAWQJLVyMAZgBmgOgqVHprneupAFQAKgAV4KIGQnmowVr+WwD1LKWlvAsWKrQuDl2a+Q28FMvOa7Zh44de43/zW70MEgsEsLwcIIDl7OwrJdWboiMAE0iHGwRwTlFiQQtYLr9WK0A6UXZesw0ZArPe5C2Xk28lFcDH8qAnKkAQ6JwwkupzHGbYIIAMSFEmCGDh42RmgOUSbbUCSJcBASAAiUAXqpdOPG/cBQsqwHI1IIDl7Owrpb5nio4ATCAdbhAAj4KPThxKEnxQAQRYtU2pAFQAKsDO+5rsashvActrEy1gOTv7SloALYAWsHOtsit7tuFOf7FfX4NDKgAvg6gAVABDKRFctDoEpiNkV/ZsQ1rAJWkgAOG21DZlBmAGYAZgBqhdZy76pwXE8j4YjRZAC6AF0AJiS9KQLWDfhy7HYt8fLX0W8PXgjbT6MfbVnwMkEWS/bgxIylof3Z4qwOZZqA+CAvJJiEgCqgCeRW4uM1a6iekczzPtXWZdsFAF8NRFz+wnieCl2edV7lplkfb94qrN//+5KoAnuY6D7ZIAXgfHbJVFwvAql4UqgMe5jlewexMcswsWqgAeBUNWwr1VjA22XbBQBfDQAK6Wi3e1HM/47YKFKoAHwZBzw6UZ4EOuscmuVRbpeO9zz6gK4H6u4xXsPgbH7IKFKoB7wZCVcJ8UY4NtFyxUAdw1gKvl4nMtxzN+u2ChCuBOMGQl3BfF2GDbBQtVALcN4Gq5+FrL8YzfLlioArgVDFkJ900xNth2wUIVwE0DuFouvtdyPOO3CxaqAG4EQ1bC/VCMDbZdsFAFcGoAV8vFr1qOZ/x2wUIVQDBjwtUmgABqE27cPwJoPEG1t4cAahNu3D8CaDxBtbeHAGoTbtz/P7bJCZDudZmEAAAAAElFTkSuQmCC"
+    />
+{% endblock %}
+
+{% block toolbar %}
+    <style>
+        {{ include('IvoryHttpAdapterBundle:DataCollector:layout.css.twig', {}, with_context = false) }}
+    </style>
+    <div class="sf-toolbar-block">
+        <div class="sf-toolbar-icon">
+            <a href="{{ path('_profiler', { 'token': token, 'panel': name }) }}">
+                {{ block('icon') }}
+                <span class="sf-toolbar-status{% if collector | length %} sf-toolbar-status-{% if collector.exceptions | length %}red{% else %}green{% endif %}{% endif %}">
+                    {{ collector | length }}
+                </span>
+            </a>
+        </div>
+        {% if collector | length %}
+            <div class="sf-toolbar-info">
+                <div class="sf-toolbar-info-piece">
+                    <b>Http Adapter</b>
+                    <table class="ivory-http-adapter-toolbar-requests">
+                        <thead>
+                            <tr>
+                                <th>URL</th>
+                                <th>Method</th>
+                                <th>Time</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% set items = collector.responses | merge(collector.exceptions) %}
+                            {% for item in items %}
+                                <tr{% if item.exception is defined %} class="ivory-http-adapter-toolbar-error"{% endif %}>
+                                    <td class="ivory-http-adapter-toolbar-url">{{ item.request.url }}</td>
+                                    <td>{{ item.request.method }}</td>
+                                    <td>{{ (item.time * 1000) | round }} ms</td>
+                                </tr>
+                            {% endfor %}
+                            {% if items | length > 1 %}
+                                <tr>
+                                    <td colspan="2">Total</td>
+                                    <td>{{ (collector.time * 1000) | round }} ms</td>
+                                </tr>
+                            {% endif %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        {% endif %}
+    </div>
+{% endblock %}
+
+{% block menu %}
+    <span class="label">
+        <span class="icon">
+            {{ block('icon') }}
+        </span>
+        <strong>Http Adapter</strong>
+        <span class="count{% if collector.exceptions | length %} count-red{% endif %}">
+            <span>{{ collector | length }}</span>
+        </span>
+    </span>
+{% endblock %}
+
+{% block panel %}
+    <h2>Http Adapter</h2>
+    {% if collector | length %}
+        <p>
+            The Http Adapter has sent <strong>{{ collector | length }} requests</strong> in
+            <strong>{{ (collector.time * 1000) | round}} ms</strong> including
+            <strong>{{ collector.responses | length }} successful</strong> and
+            <strong>{{ collector.exceptions | length }} errored</strong>.
+        </p>
+        {% if collector.responses | length %}
+            <h3>Successful Requests</h3>
+            {% for item in collector.responses %}
+                {% embed 'IvoryHttpAdapterBundle:DataCollector:panel_item.html.twig' with { item: item } only %}
+                    {% block title %}Response{% endblock %}
+                    {% block table_head %}
+                        <tr>
+                            <th>Status Code</th>
+                            <th>Reason Phrase</th>
+                            <th>Protocol Version</th>
+                            <th>Headers</th>
+                            <th>Parameters</th>
+                        </tr>
+                    {% endblock %}
+                    {% block table_body %}
+                        <tr>
+                            <td>{{ item.response.status_code }}</td>
+                            <td>{{ item.response.reason_phrase }}</td>
+                            <td>{{ item.response.protocol_version }}</td>
+                            <td>{{ helper.format_value(item.response.headers) }}</td>
+                            <td>{{ helper.format_value(item.request.parameters) }}</td>
+                        </tr>
+                    {% endblock %}
+                    {% block table_extra %}
+                        <table class="ivory-http-adapter-panel-request ivory-http-adapter-panel-request-body">
+                            <thead>
+                                <tr>
+                                    <th>Body</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td>
+                                        <div>{{ helper.format_value(item.response.body) }}</div>
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    {% endblock %}
+                {% endembed %}
+            {% endfor %}
+        {% endif %}
+        {% if collector.exceptions | length %}
+            <h3>Errored Requests</h3>
+            {% for item in collector.exceptions %}
+                {% embed 'IvoryHttpAdapterBundle:DataCollector:panel_item.html.twig' with { item: item } only %}
+                    {% block title %}Exception{% endblock %}
+                    {% block table_head %}
+                        <tr>
+                            <th>Code</th>
+                            <th>Message</th>
+                            <th>Line</th>
+                            <th>File</th>
+                        </tr>
+                    {% endblock %}
+                    {% block table_body %}
+                        <tr>
+                            <td>{{ item.exception.code }}</td>
+                            <td>{{ item.exception.message }}</td>
+                            <td>{{ item.exception.line }}</td>
+                            <td>{{ item.exception.file }}</td>
+                        </tr>
+                    {% endblock %}
+                {% endembed %}
+            {% endfor %}
+        {% endif %}
+    {% else %}
+        <p>Nothing happens during the request...</p>
+    {% endif %}
+{% endblock %}

@@ -18,6 +18,7 @@
         <parameter key="ivory.http_adapter.guzzle_http.class">Ivory\HttpAdapter\GuzzleHttpHttpAdapter</parameter>
         <parameter key="ivory.http_adapter.httpful.class">Ivory\HttpAdapter\HttpfulHttpAdapter</parameter>
         <parameter key="ivory.http_adapter.socket.class">Ivory\HttpAdapter\SocketHttpAdapter</parameter>
+        <parameter key="ivory.http_adapter.stopwatch.class">Ivory\HttpAdapter\StopwatchHttpAdapter</parameter>
         <parameter key="ivory.http_adapter.zend1.class">Ivory\HttpAdapter\Zend1HttpAdapter</parameter>
         <parameter key="ivory.http_adapter.zend2.class">Ivory\HttpAdapter\Zend2HttpAdapter</parameter>
     </parameters>

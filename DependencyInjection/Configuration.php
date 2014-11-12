@@ -93,6 +93,7 @@ class Configuration implements ConfigurationInterface
                 ->scalarNode('logger')->end()
                 ->booleanNode('retry')->end()
                 ->booleanNode('status_code')->end()
+                ->scalarNode('stopwatch')->end()
             ->end();
     }
 
