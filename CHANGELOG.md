@@ -2,6 +2,7 @@
 
 ### 0.6.0 (????-??-??)
 
+ * dea590c - [Test] Remove bootstrap.php
  * 3bf5424 - Add stopwatch support
  * 2776675 - [Encapsulation] Move everything from protected to private (except for entry point)
 
