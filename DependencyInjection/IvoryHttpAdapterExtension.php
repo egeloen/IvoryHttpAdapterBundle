@@ -29,18 +29,6 @@ use Symfony\Component\HttpKernel\DependencyInjection\ConfigurableExtension;
 class IvoryHttpAdapterExtension extends ConfigurableExtension
 {
     /**
-     * Creates a parameter name.
-     *
-     * @param string|null $suffix The suffix.
-     *
-     * @return string The parameter name.
-     */
-    public static function createParameterName($suffix = null)
-    {
-        return '%'.self::createServiceName($suffix).'%';
-    }
-
-    /**
      * Creates a service name.
      *
      * @param string|null $suffix The suffix.
@@ -115,7 +103,7 @@ class IvoryHttpAdapterExtension extends ConfigurableExtension
             $container->setDefinition(
                 $httpAdapter,
                 new Definition(
-                    self::createParameterName('stopwatch.class'),
+                    'Ivory\HttpAdapter\StopwatchHttpAdapter',
                     array(new Reference($wrappedHttpAdapter), new Reference('debug.stopwatch'))
                 )
             );
@@ -165,12 +153,8 @@ class IvoryHttpAdapterExtension extends ConfigurableExtension
     private function createAdapterDefinition(array $adapter, $configuration)
     {
         $definition = new DefinitionDecorator(self::createServiceName('abstract'));
-        $definition->setClass(self::createParameterName($adapter['type'].'.class'));
-
-        $definition->addMethodCall(
-            'setConfiguration',
-            array(new Reference($configuration))
-        );
+        $definition->setArguments(array($adapter['type']));
+        $definition->addMethodCall('setConfiguration', array(new Reference($configuration)));
 
         return $definition;
     }

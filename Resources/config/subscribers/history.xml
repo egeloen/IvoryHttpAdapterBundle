@@ -4,28 +4,22 @@
     xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
     xsi:schemaLocation="http://symfony.com/schema/dic/services http://symfony.com/schema/dic/services/services-1.0.xsd"
 >
-    <parameters>
-        <parameter key="ivory.http_adapter.subscriber.history.journal.entry.factory.class">Ivory\HttpAdapter\Event\History\JournalEntryFactory</parameter>
-        <parameter key="ivory.http_adapter.subscriber.history.journal.class">Ivory\HttpAdapter\Event\History\Journal</parameter>
-        <parameter key="ivory.http_adapter.subscriber.history.class">Ivory\HttpAdapter\Event\Subscriber\HistorySubscriber</parameter>
-    </parameters>
-
     <services>
         <service
             id="ivory.http_adapter.subscriber.history.journal.entry.factory"
-            class="%ivory.http_adapter.subscriber.history.journal.entry.factory.class%"
+            class="Ivory\HttpAdapter\Event\History\JournalEntryFactory"
         />
 
         <service
             id="ivory.http_adapter.subscriber.history.journal"
-            class="%ivory.http_adapter.subscriber.history.journal.class%"
+            class="Ivory\HttpAdapter\Event\History\Journal"
         >
             <argument type="service" id="ivory.http_adapter.subscriber.history.journal.entry.factory" />
         </service>
 
         <service
             id="ivory.http_adapter.subscriber.history"
-            class="%ivory.http_adapter.subscriber.history.class%"
+            class="Ivory\HttpAdapter\Event\Subscriber\HistorySubscriber"
             abstract="true"
         />
     </services>

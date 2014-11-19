@@ -4,24 +4,15 @@
     xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
     xsi:schemaLocation="http://symfony.com/schema/dic/services http://symfony.com/schema/dic/services/services-1.0.xsd"
 >
-    <parameters>
-        <parameter key="ivory.http_adapter.subscriber.cookie.factory.class">Ivory\HttpAdapter\Event\Cookie\CookieFactory</parameter>
-        <parameter key="ivory.http_adapter.subscriber.cookie.jar.default.class">Ivory\HttpAdapter\Event\Cookie\Jar\CookieJar</parameter>
-        <parameter key="ivory.http_adapter.subscriber.cookie.jar.file.class">Ivory\HttpAdapter\Event\Cookie\Jar\FileCookieJar</parameter>
-        <parameter key="ivory.http_adapter.subscriber.cookie.jar.session.class">Ivory\HttpAdapter\Event\Cookie\Jar\SessionCookieJar</parameter>
-        <parameter key="ivory.http_adapter.subscriber.cookie.jar.session.key">ivory.http_adapter.cookie.jar</parameter>
-        <parameter key="ivory.http_adapter.subscriber.cookie.class">Ivory\HttpAdapter\Event\Subscriber\CookieSubscriber</parameter>
-    </parameters>
-
     <services>
         <service
             id="ivory.http_adapter.subscriber.cookie.factory"
-            class="%ivory.http_adapter.subscriber.cookie.factory.class%"
+            class="Ivory\HttpAdapter\Event\Cookie\CookieFactory"
         />
 
         <service
             id="ivory.http_adapter.subscriber.cookie.jar.default"
-            class="%ivory.http_adapter.subscriber.cookie.jar.default.class%"
+            class="Ivory\HttpAdapter\Event\Cookie\Jar\CookieJar"
         >
             <call method="setCookieFactory">
                 <argument type="service" id="ivory.http_adapter.subscriber.cookie.factory" />
@@ -30,7 +21,7 @@
 
         <service
             id="ivory.http_adapter.subscriber.cookie.jar.file"
-            class="%ivory.http_adapter.subscriber.cookie.jar.file.class%"
+            class="Ivory\HttpAdapter\Event\Cookie\Jar\FileCookieJar"
             parent="ivory.http_adapter.subscriber.cookie.jar.default"
         >
             <argument>%kernel.cache_dir%/ivory/http-adapter/cookie.jar</argument>
@@ -38,15 +29,15 @@
 
         <service
             id="ivory.http_adapter.subscriber.cookie.jar.session"
-            class="%ivory.http_adapter.subscriber.cookie.jar.session.class%"
+            class="Ivory\HttpAdapter\Event\Cookie\Jar\SessionCookieJar"
             parent="ivory.http_adapter.subscriber.cookie.jar.default"
         >
-            <argument>%ivory.http_adapter.subscriber.cookie.jar.session.key%</argument>
+            <argument>ivory.http_adapter.cookie.jar</argument>
         </service>
 
         <service
             id="ivory.http_adapter.subscriber.cookie"
-            class="%ivory.http_adapter.subscriber.cookie.class%"
+            class="Ivory\HttpAdapter\Event\Subscriber\CookieSubscriber"
             abstract="true"
         />
     </services>
