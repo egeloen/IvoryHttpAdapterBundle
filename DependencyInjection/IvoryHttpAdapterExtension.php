@@ -76,21 +76,6 @@ class IvoryHttpAdapterExtension extends ConfigurableExtension
      */
     private function loadAdapters(array $config, ContainerBuilder $container, LoaderInterface $loader)
     {
-        if (empty($config['adapters'])) {
-            $config['adapters'] = array(
-                'default' => array(
-                    'type'        => 'socket',
-                    'configs'     => array(),
-                    'subscribers' => array(),
-                )
-            );
-        }
-
-        if (!isset($config['default'])) {
-            reset($config['adapters']);
-            $config['default'] = key($config['adapters']);
-        }
-
         foreach ($config['adapters'] as $name => $adapter) {
             $this->loadAdapter($name, $adapter, $config['configs'], $container);
             $this->loadSubscribers($name, $adapter, $config['subscribers'], $container, $loader);
