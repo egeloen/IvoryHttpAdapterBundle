@@ -905,6 +905,7 @@ abstract class AbstractIvoryHttpAdapterExtensionTest extends \PHPUnit_Framework_
             array('guzzle', 'ivory.http_adapter.guzzle', 'Ivory\HttpAdapter\GuzzleHttpAdapter'),
             array('guzzle_http', 'ivory.http_adapter.guzzle_http', 'Ivory\HttpAdapter\GuzzleHttpHttpAdapter'),
             array('httpful', 'ivory.http_adapter.httpful', 'Ivory\HttpAdapter\HttpfulHttpAdapter'),
+            array('react', 'ivory.http_adapter.react', 'Ivory\HttpAdapter\ReactHttpAdapter'),
             array('socket', 'ivory.http_adapter.socket', 'Ivory\HttpAdapter\SocketHttpAdapter'),
             array('zend1', 'ivory.http_adapter.zend1', 'Ivory\HttpAdapter\Zend1HttpAdapter'),
             array('zend2', 'ivory.http_adapter.zend2', 'Ivory\HttpAdapter\Zend2HttpAdapter'),
