@@ -29,6 +29,26 @@ class Configuration implements ConfigurationInterface
         $treeBuilder = $this->createTreeBuilder();
         $treeBuilder
             ->root('ivory_http_adapter')
+            ->beforeNormalization()
+                ->always(function($config) {
+                    if (empty($config['adapters'])) {
+                        $config['adapters'] = array(
+                            'default' => array(
+                                'type'        => 'socket',
+                                'configs'     => array(),
+                                'subscribers' => array(),
+                            )
+                        );
+                    }
+
+                    if (!isset($config['default'])) {
+                        reset($config['adapters']);
+                        $config['default'] = key($config['adapters']);
+                    }
+
+                    return $config;
+                })
+            ->end()
             ->children()
                 ->scalarNode('default')->end()
                 ->append($this->createAdaptersNode())
