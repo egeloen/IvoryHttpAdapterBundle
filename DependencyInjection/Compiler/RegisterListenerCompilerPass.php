@@ -52,7 +52,7 @@ class RegisterListenerCompilerPass implements CompilerPassInterface
                             array(
                                 $listener['event'],
                                 array($id, $listener['method']),
-                                isset($listener['priority']) ? $listener['priority'] : 0
+                                isset($listener['priority']) ? $listener['priority'] : 0,
                             )
                         );
                 }

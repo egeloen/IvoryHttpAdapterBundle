@@ -30,14 +30,14 @@ class Configuration implements ConfigurationInterface
         $treeBuilder
             ->root('ivory_http_adapter')
             ->beforeNormalization()
-                ->always(function($config) {
+                ->always(function ($config) {
                     if (empty($config['adapters'])) {
                         $config['adapters'] = array(
                             'default' => array(
                                 'type'        => 'socket',
                                 'configs'     => array(),
                                 'subscribers' => array(),
-                            )
+                            ),
                         );
                     }
 
