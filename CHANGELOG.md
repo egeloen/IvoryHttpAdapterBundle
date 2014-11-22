@@ -2,6 +2,7 @@
 
 ### 0.6.0 (????-??-??)
 
+ * e47fd0f - [Test] Add CakePHP http adapter
  * f476395 - [Test] Add ReactPHP http adapter
  * 9ad2798 - Remove *.class parameters
  * 5fdb00b - [DependencyInjection] Move normalization from extension to config
