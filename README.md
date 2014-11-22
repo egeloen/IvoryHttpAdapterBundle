@@ -1,6 +1,6 @@
 # README
 
-[![Build Status](https://secure.travis-ci.org/egeloen/IvoryHttpAdapterBundle.png)](http://travis-ci.org/egeloen/IvoryHttpAdapterBundle)
+[![Build Status](https://secure.travis-ci.org/egeloen/IvoryHttpAdapterBundle.png?branch=master)](http://travis-ci.org/egeloen/IvoryHttpAdapterBundle)
 [![Coverage Status](https://coveralls.io/repos/egeloen/IvoryHttpAdapterBundle/badge.png?branch=master)](https://coveralls.io/r/egeloen/IvoryHttpAdapterBundle?branch=master)
 [![Scrutinizer Code Quality](https://scrutinizer-ci.com/g/egeloen/IvoryHttpAdapterBundle/badges/quality-score.png?b=master)](https://scrutinizer-ci.com/g/egeloen/IvoryHttpAdapterBundle/?branch=master)
 [![Dependency Status](http://www.versioneye.com/php/egeloen:http-adapter-bundle/badge.svg)](http://www.versioneye.com/php/egeloen:http-adapter-bundle)
