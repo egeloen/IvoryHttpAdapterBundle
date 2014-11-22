@@ -31,6 +31,25 @@ abstract class AbstractIvoryHttpAdapterExtensionTest extends \PHPUnit_Framework_
      */
     protected function setUp()
     {
+        if (!defined('APP_DIR')) {
+            define('APP_DIR', 'app');
+        }
+
+        if (!defined('DS')) {
+            define('DS', DIRECTORY_SEPARATOR);
+        }
+
+        if (!defined('ROOT')) {
+            define('ROOT', realpath(__DIR__.'/../../vendor/cakephp/cakephp'));
+        }
+
+        if (!defined('WWW_ROOT')) {
+            define('WWW_ROOT', ROOT.DS.APP_DIR.DS.'webroot'.DS);
+        }
+
+        require_once __DIR__.'/../../vendor/cakephp/cakephp/lib/Cake/bootstrap.php';
+        \App::uses('HttpSocket', 'Network/Http');
+
         $this->container = new ContainerBuilder();
         $this->container->setParameter('kernel.debug', false);
         $this->container->addCompilerPass(new RegisterListenerCompilerPass());
@@ -895,6 +914,7 @@ abstract class AbstractIvoryHttpAdapterExtensionTest extends \PHPUnit_Framework_
     {
         return array(
             array('buzz', 'ivory.http_adapter.buzz', 'Ivory\HttpAdapter\BuzzHttpAdapter'),
+            array('cake', 'ivory.http_adapter.cake', 'Ivory\HttpAdapter\CakeHttpAdapter'),
             array('curl', 'ivory.http_adapter.curl', 'Ivory\HttpAdapter\CurlHttpAdapter'),
             array(
                 'file_get_contents',
