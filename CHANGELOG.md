@@ -2,6 +2,9 @@
 
 ### 0.6.0 (????-??-??)
 
+ * 2652f25 - [Travis] Update config
+ * 61cb1d0 - [Readme] Fix badge uri
+ * 6e9436e - Add .gitattributes
  * e47fd0f - [Test] Add CakePHP http adapter
  * f476395 - [Test] Add ReactPHP http adapter
  * 9ad2798 - Remove *.class parameters
