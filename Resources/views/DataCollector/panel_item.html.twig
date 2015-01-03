@@ -36,7 +36,7 @@
                         <tr>
                             <td>{{ item.request.url }}</td>
                             <td>{{ item.request.method }}</td>
-                            <td>{{ (item.time * 1000) | round }} ms</td>
+                            <td>{{ (item.request.parameters.time * 1000) | round }} ms</td>
                             <td>{{ item.adapter }}</td>
                             <td>{{ item.request.protocol_version }}</td>
                             <td>{{ helper.format_value(item.request.headers) }}</td>

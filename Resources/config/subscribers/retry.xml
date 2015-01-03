@@ -6,6 +6,12 @@
 >
     <services>
         <service
+            id="ivory.http_adapter.subscriber.retry.model"
+            class="Ivory\HttpAdapter\Event\Retry\Retry"
+            abstract="true"
+        />
+
+        <service
             id="ivory.http_adapter.subscriber.retry"
             class="Ivory\HttpAdapter\Event\Subscriber\RetrySubscriber"
             abstract="true"

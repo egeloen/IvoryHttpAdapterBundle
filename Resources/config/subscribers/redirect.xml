@@ -6,6 +6,12 @@
 >
     <services>
         <service
+            id="ivory.http_adapter.subscriber.redirect.model"
+            class="Ivory\HttpAdapter\Event\Redirect\Redirect"
+            abstract="true"
+        />
+
+        <service
             id="ivory.http_adapter.subscriber.redirect"
             class="Ivory\HttpAdapter\Event\Subscriber\RedirectSubscriber"
             abstract="true"

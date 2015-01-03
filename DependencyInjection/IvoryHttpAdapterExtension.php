@@ -197,61 +197,75 @@ class IvoryHttpAdapterExtension extends ConfigurableExtension
     ) {
         $parent = self::createServiceName('subscriber.'.$subscriberName);
 
-        $definition = new DefinitionDecorator($parent);
-        $definition->setClass($container->getDefinition($parent)->getClass());
-        $definition->addTag(RegisterListenerCompilerPass::SUBSCRIBER_TAG, array('adapter' => $adapterName));
+        $subscriber = new DefinitionDecorator($parent);
+        $subscriber->setClass($container->getDefinition($parent)->getClass());
+        $subscriber->addTag(RegisterListenerCompilerPass::SUBSCRIBER_TAG, array('adapter' => $adapterName));
 
         switch ($subscriberName) {
             case 'basic_auth':
-                $this->configureBasicAuthSubscriberDefinition($definition, $configuration);
+                $this->configureBasicAuthSubscriberDefinition($subscriber, $configuration, $adapterName, $container);
                 break;
 
             case 'cookie':
-                $this->configureCookieSubscriberDefinition($definition, $configuration);
+                $this->configureCookieSubscriberDefinition($subscriber, $configuration);
                 break;
 
             case 'history':
-                $this->configureHistorySubscriberDefinition($definition, $configuration);
+                $this->configureHistorySubscriberDefinition($subscriber, $configuration);
                 break;
 
             case 'logger':
-                $this->configureLoggerSubscriberDefinition($definition, $configuration);
+                $this->configureLoggerSubscriberDefinition($subscriber, $configuration);
                 break;
 
             case 'redirect':
-                $this->configureRedirectSubscriberDefinition($definition, $configuration);
+                $this->configureRedirectSubscriberDefinition($subscriber, $configuration, $adapterName, $container);
+                break;
+
+            case 'retry':
+                $this->configureRetrySubscriberDefinition($subscriber, $adapterName, $container);
                 break;
 
             case 'stopwatch':
-                $this->configureStopwatchSubscriberDefinition($definition, $configuration);
+                $this->configureStopwatchSubscriberDefinition($subscriber, $configuration);
                 break;
         }
 
-        return $definition;
+        return $subscriber;
     }
 
     /**
      * Configures the basic auth subscriber definition.
      *
-     * @param \Symfony\Component\DependencyInjection\Definition $definition The definition.
-     * @param array                                             $basicAuth  The basic auth.
+     * @param \Symfony\Component\DependencyInjection\Definition       $subscriber  The subscriber.
+     * @param array                                                   $basicAuth   The basic auth.
+     * @param string                                                  $adapterName The adapter name.
+     * @param \Symfony\Component\DependencyInjection\ContainerBuilder $container   The container.
      */
-    private function configureBasicAuthSubscriberDefinition(Definition $definition, array $basicAuth)
-    {
-        $definition->setArguments(array($basicAuth['username'], $basicAuth['password']));
+    private function configureBasicAuthSubscriberDefinition(
+        Definition $subscriber,
+        array $basicAuth,
+        $adapterName,
+        ContainerBuilder $container
+    ) {
+        $model = new DefinitionDecorator(self::createServiceName('subscriber.basic_auth.model'));
+        $model->setArguments(array($basicAuth['username'], $basicAuth['password']));
 
         if (isset($basicAuth['matcher'])) {
-            $definition->addArgument($basicAuth['matcher']);
+            $model->addArgument($basicAuth['matcher']);
         }
+
+        $container->setDefinition($service = self::createServiceName($adapterName.'.basic_auth.model'), $model);
+        $subscriber->setArguments(array(new Reference($service)));
     }
 
     /**
      * Configures the cookie subscriber definition.
      *
-     * @param \Symfony\Component\DependencyInjection\Definition $definition The definition.
+     * @param \Symfony\Component\DependencyInjection\Definition $subscriber The subscriber.
      * @param string|null                                       $cookieJar  The cookie jar.
      */
-    private function configureCookieSubscriberDefinition(Definition $definition, $cookieJar = null)
+    private function configureCookieSubscriberDefinition(Definition $subscriber, $cookieJar = null)
     {
         if ($cookieJar === null) {
             $cookieJar = 'default';
@@ -261,13 +275,13 @@ class IvoryHttpAdapterExtension extends ConfigurableExtension
             $cookieJar = 'ivory.http_adapter.subscriber.cookie.jar.'.$cookieJar;
         }
 
-        $definition->setArguments(array(new Reference($cookieJar)));
+        $subscriber->setArguments(array(new Reference($cookieJar)));
     }
 
     /**
      * Configures the history subscriber definition.
      *
-     * @param \Symfony\Component\DependencyInjection\Definition $definition The definition.
+     * @param \Symfony\Component\DependencyInjection\Definition $definition The subscriber.
      * @param string|null                                       $journal    The journal.
      */
     private function configureHistorySubscriberDefinition(Definition $definition, $journal = null)
@@ -278,44 +292,75 @@ class IvoryHttpAdapterExtension extends ConfigurableExtension
     /**
      * Configures the logger subscriber definition.
      *
-     * @param \Symfony\Component\DependencyInjection\Definition $definition The definition.
+     * @param \Symfony\Component\DependencyInjection\Definition $subscriber The definition.
      * @param string|null                                       $logger     The logger.
      */
-    private function configureLoggerSubscriberDefinition(Definition $definition, $logger = null)
+    private function configureLoggerSubscriberDefinition(Definition $subscriber, $logger = null)
     {
-        $definition->setArguments(array(new Reference($logger ?: 'logger')));
+        $subscriber->setArguments(array(new Reference($logger ?: 'logger')));
     }
 
     /**
      * Configures the redirect subscriber definition.
      *
-     * @param \Symfony\Component\DependencyInjection\Definition $definition The definition.
-     * @param array                                             $redirect   The redirect.
+     * @param \Symfony\Component\DependencyInjection\Definition       $subscriber  The subscriber.
+     * @param array                                                   $redirect    The redirect.
+     * @param string                                                  $adapterName The adapter name.
+     * @param \Symfony\Component\DependencyInjection\ContainerBuilder $container   The container.
      */
-    private function configureRedirectSubscriberDefinition(Definition $definition, array $redirect = array())
-    {
+    private function configureRedirectSubscriberDefinition(
+        Definition $subscriber,
+        array $redirect,
+        $adapterName,
+        ContainerBuilder $container
+    ) {
+        $model = new DefinitionDecorator(self::createServiceName('subscriber.redirect.model'));
+
         if (isset($redirect['max'])) {
-            $definition->addMethodCall('setMax', array($redirect['max']));
+            $model->addMethodCall('setMax', array($redirect['max']));
         }
 
         if (isset($redirect['strict'])) {
-            $definition->addMethodCall('setStrict', array($redirect['strict']));
+            $model->addMethodCall('setStrict', array($redirect['strict']));
         }
 
         if (isset($redirect['throw_exception'])) {
-            $definition->addMethodCall('setThrowException', array($redirect['throw_exception']));
+            $model->addMethodCall('setThrowException', array($redirect['throw_exception']));
         }
+
+        $container->setDefinition($service = self::createServiceName($adapterName.'.redirect.model'), $model);
+        $subscriber->setArguments(array(new Reference($service)));
+    }
+
+    /**
+     * Configures the retry subscriber definition.
+     *
+     * @param \Symfony\Component\DependencyInjection\Definition       $subscriber  The subscriber.
+     * @param string                                                  $adapterName The adapter name.
+     * @param \Symfony\Component\DependencyInjection\ContainerBuilder $container   The container.
+     */
+    private function configureRetrySubscriberDefinition(
+        Definition $subscriber,
+        $adapterName,
+        ContainerBuilder $container
+    ) {
+        $container->setDefinition(
+            $service = self::createServiceName($adapterName.'.retry.model'),
+            new DefinitionDecorator(self::createServiceName('subscriber.retry.model'))
+        );
+
+        $subscriber->setArguments(array(new Reference($service)));
     }
 
     /**
      * Configures the stopwatch subscriber definition.
      *
-     * @param \Symfony\Component\DependencyInjection\Definition $definition The definition.
+     * @param \Symfony\Component\DependencyInjection\Definition $subscriber The subscriber.
      * @param string|null                                       $stopwatch  The stopwatch.
      */
-    private function configureStopwatchSubscriberDefinition(Definition $definition, $stopwatch = null)
+    private function configureStopwatchSubscriberDefinition(Definition $subscriber, $stopwatch = null)
     {
-        $definition->setArguments(array(new Reference($stopwatch ?: 'debug.stopwatch')));
+        $subscriber->setArguments(array(new Reference($stopwatch ?: 'debug.stopwatch')));
     }
 
     /**
