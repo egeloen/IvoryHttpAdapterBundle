@@ -2,6 +2,7 @@
 
 ### 0.6.0 (????-??-??)
 
+ * ef21881 - Update accoding to egeloen/http-adapter changes
  * 30b97ec - [Travis] Move Symfony 2.6.*@dev to 2.6.*
  * 2652f25 - [Travis] Update config
  * 61cb1d0 - [Readme] Fix badge uri
