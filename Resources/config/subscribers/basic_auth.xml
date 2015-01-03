@@ -6,6 +6,12 @@
 >
     <services>
         <service
+            id="ivory.http_adapter.subscriber.basic_auth.model"
+            class="Ivory\HttpAdapter\Event\BasicAuth\BasicAuth"
+            abstract="true"
+        />
+
+        <service
             id="ivory.http_adapter.subscriber.basic_auth"
             class="Ivory\HttpAdapter\Event\Subscriber\BasicAuthSubscriber"
             abstract="true"

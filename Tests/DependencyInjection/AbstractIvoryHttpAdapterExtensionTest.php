@@ -121,6 +121,7 @@ abstract class AbstractIvoryHttpAdapterExtensionTest extends \PHPUnit_Framework_
     public function testHttpAdapter($configuration, $service, $class)
     {
         if ((($configuration === 'guzzle_http') && !class_exists('GuzzleHttp\Client'))
+            || (($configuration === 'react') && !class_exists('React\HttpClient\Request'))
             || (($configuration === 'zend2') && !class_exists('Zend\Http\Client'))) {
             $this->markTestSkipped();
         }
@@ -201,9 +202,14 @@ abstract class AbstractIvoryHttpAdapterExtensionTest extends \PHPUnit_Framework_
             'Ivory\HttpAdapter\Event\Subscriber\BasicAuthSubscriber'
         );
 
-        $this->assertSame('foo', $listener->getUsername());
-        $this->assertSame('bar', $listener->getPassword());
-        $this->assertFalse($listener->hasMatcher());
+        $this->assertSame(
+            $basicAuth = $this->container->get('ivory.http_adapter.default.basic_auth.model'),
+            $listener->getBasicAuth()
+        );
+
+        $this->assertSame('foo', $basicAuth->getUsername());
+        $this->assertSame('bar', $basicAuth->getPassword());
+        $this->assertFalse($basicAuth->hasMatcher());
     }
 
     public function testGlobalBasicAuthSubscriberWithMatcher()
@@ -217,7 +223,12 @@ abstract class AbstractIvoryHttpAdapterExtensionTest extends \PHPUnit_Framework_
             'Ivory\HttpAdapter\Event\Subscriber\BasicAuthSubscriber'
         );
 
-        $this->assertSame('domain.com', $listener->getMatcher());
+        $this->assertSame(
+            $basicAuth = $this->container->get('ivory.http_adapter.default.basic_auth.model'),
+            $listener->getBasicAuth()
+        );
+
+        $this->assertSame('domain.com', $basicAuth->getMatcher());
     }
 
     public function testGlobalCookieSubscriber()
@@ -389,9 +400,14 @@ abstract class AbstractIvoryHttpAdapterExtensionTest extends \PHPUnit_Framework_
             'Ivory\HttpAdapter\Event\Subscriber\RedirectSubscriber'
         );
 
-        $this->assertSame(5, $listener->getMax());
-        $this->assertFalse($listener->isStrict());
-        $this->assertTrue($listener->getThrowException());
+        $this->assertSame(
+            $redirect = $this->container->get('ivory.http_adapter.default.redirect.model'),
+            $listener->getRedirect()
+        );
+
+        $this->assertSame(5, $redirect->getMax());
+        $this->assertFalse($redirect->isStrict());
+        $this->assertTrue($redirect->getThrowException());
     }
 
     public function testGlobalRedirectSubscriberWithConfiguration()
@@ -405,9 +421,14 @@ abstract class AbstractIvoryHttpAdapterExtensionTest extends \PHPUnit_Framework_
             'Ivory\HttpAdapter\Event\Subscriber\RedirectSubscriber'
         );
 
-        $this->assertSame(3, $listener->getMax());
-        $this->assertTrue($listener->isStrict());
-        $this->assertFalse($listener->getThrowException());
+        $this->assertSame(
+            $redirect = $this->container->get('ivory.http_adapter.default.redirect.model'),
+            $listener->getRedirect()
+        );
+
+        $this->assertSame(3, $redirect->getMax());
+        $this->assertTrue($redirect->isStrict());
+        $this->assertFalse($redirect->getThrowException());
     }
 
     public function testGlobalRetrySubscriber()
@@ -550,9 +571,14 @@ abstract class AbstractIvoryHttpAdapterExtensionTest extends \PHPUnit_Framework_
             'Ivory\HttpAdapter\Event\Subscriber\BasicAuthSubscriber'
         );
 
-        $this->assertSame('foo', $localListener->getUsername());
-        $this->assertSame('bar', $localListener->getPassword());
-        $this->assertFalse($localListener->hasMatcher());
+        $this->assertSame(
+            $basicAuth = $this->container->get('ivory.http_adapter.local.basic_auth.model'),
+            $localListener->getBasicAuth()
+        );
+
+        $this->assertSame('foo', $basicAuth->getUsername());
+        $this->assertSame('bar', $basicAuth->getPassword());
+        $this->assertFalse($basicAuth->hasMatcher());
 
         $this->assertNoListeners($this->container->get('ivory.http_adapter.global'));
     }
@@ -568,9 +594,14 @@ abstract class AbstractIvoryHttpAdapterExtensionTest extends \PHPUnit_Framework_
             'Ivory\HttpAdapter\Event\Subscriber\BasicAuthSubscriber'
         );
 
-        $this->assertSame('foo', $localListener->getUsername());
-        $this->assertSame('bar', $localListener->getPassword());
-        $this->assertSame('domain.com', $localListener->getMatcher());
+        $this->assertSame(
+            $basicAuth = $this->container->get('ivory.http_adapter.local.basic_auth.model'),
+            $localListener->getBasicAuth()
+        );
+
+        $this->assertSame('foo', $basicAuth->getUsername());
+        $this->assertSame('bar', $basicAuth->getPassword());
+        $this->assertSame('domain.com', $basicAuth->getMatcher());
 
         $this->assertNoListeners($this->container->get('ivory.http_adapter.global'));
     }
@@ -758,9 +789,14 @@ abstract class AbstractIvoryHttpAdapterExtensionTest extends \PHPUnit_Framework_
             'Ivory\HttpAdapter\Event\Subscriber\RedirectSubscriber'
         );
 
-        $this->assertSame(5, $listener->getMax());
-        $this->assertFalse($listener->isStrict());
-        $this->assertTrue($listener->getThrowException());
+        $this->assertSame(
+            $redirect = $this->container->get('ivory.http_adapter.local.redirect.model'),
+            $listener->getRedirect()
+        );
+
+        $this->assertSame(5, $redirect->getMax());
+        $this->assertFalse($redirect->isStrict());
+        $this->assertTrue($redirect->getThrowException());
 
         $this->assertNoListeners($this->container->get('ivory.http_adapter.global'));
     }
@@ -776,9 +812,14 @@ abstract class AbstractIvoryHttpAdapterExtensionTest extends \PHPUnit_Framework_
             'Ivory\HttpAdapter\Event\Subscriber\RedirectSubscriber'
         );
 
-        $this->assertSame(3, $listener->getMax());
-        $this->assertTrue($listener->isStrict());
-        $this->assertFalse($listener->getThrowException());
+        $this->assertSame(
+            $redirect = $this->container->get('ivory.http_adapter.local.redirect.model'),
+            $listener->getRedirect()
+        );
+
+        $this->assertSame(3, $redirect->getMax());
+        $this->assertTrue($redirect->isStrict());
+        $this->assertFalse($redirect->getThrowException());
 
         $this->assertNoListeners($this->container->get('ivory.http_adapter.global'));
     }
@@ -788,7 +829,7 @@ abstract class AbstractIvoryHttpAdapterExtensionTest extends \PHPUnit_Framework_
         $this->loadConfiguration($this->container, 'local_retry');
         $this->container->compile();
 
-        $listener = $this->assertListener(
+        $this->assertListener(
             $this->container->get('ivory.http_adapter.local'),
             Events::EXCEPTION,
             'Ivory\HttpAdapter\Event\Subscriber\RetrySubscriber'
@@ -802,7 +843,7 @@ abstract class AbstractIvoryHttpAdapterExtensionTest extends \PHPUnit_Framework_
         $this->loadConfiguration($this->container, 'local_status_code');
         $this->container->compile();
 
-        $listener = $this->assertListener(
+        $this->assertListener(
             $this->container->get('ivory.http_adapter.local'),
             Events::POST_SEND,
             'Ivory\HttpAdapter\Event\Subscriber\StatusCodeSubscriber'

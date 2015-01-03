@@ -12,6 +12,9 @@
 namespace Ivory\HttpAdapterBundle\Tests\DataCollector;
 
 use Ivory\HttpAdapter\Event\ExceptionEvent;
+use Ivory\HttpAdapter\Event\MultiExceptionEvent;
+use Ivory\HttpAdapter\Event\MultiPostSendEvent;
+use Ivory\HttpAdapter\Event\MultiPreSendEvent;
 use Ivory\HttpAdapter\Event\PostSendEvent;
 use Ivory\HttpAdapter\Event\PreSendEvent;
 use Ivory\HttpAdapter\HttpAdapterInterface;
@@ -73,98 +76,194 @@ class IvoryHttpAdapterDataCollectorTest extends \PHPUnit_Framework_TestCase
         $this->dataCollector->onPostSend($this->createPostSendEvent($httpAdapter, $request, $response));
 
         $this->assertCount(1, $this->dataCollector);
-        $this->assertCount(1, $responses = $this->dataCollector->getResponses());
+        $this->assertCount(1, $this->dataCollector->getResponses());
         $this->assertEmpty($this->dataCollector->getExceptions());
 
-        $this->assertArrayHasKey(0, $responses);
-        $debug = $responses[0];
+        foreach ($this->dataCollector->getResponses() as $debug) {
+            $this->assertArrayHasKey('adapter', $debug);
+            $this->assertSame('name', $debug['adapter']);
 
-        $this->assertArrayHasKey('time', $debug);
-        $this->assertSame($this->dataCollector->getTime(), $debug['time']);
-        $this->assertGreaterThan(0, $debug['time']);
-        $this->assertLessThan(1, $debug['time']);
+            $this->assertArrayHasKey('request', $debug);
+            $this->assertSame(
+                array(
+                    'protocol_version' => $request->getProtocolVersion(),
+                    'url'              => $request->getUrl(),
+                    'method'           => $request->getMethod(),
+                    'headers'          => array('foo' => 'bar'),
+                    'raw_datas'        => 'foo=bar',
+                    'datas'            => array('baz' => 'bat'),
+                    'files'            => array('bit' => __FILE__),
+                    'parameters'       => array('time' => 0.1),
+                ),
+                $debug['request']
+            );
 
-        $this->assertArrayHasKey('adapter', $debug);
-        $this->assertSame('name', $debug['adapter']);
-
-        $this->assertArrayHasKey('request', $debug);
-        $this->assertSame(
-            array(
-                'protocol_version' => $request->getProtocolVersion(),
-                'url'              => $request->getUrl(),
-                'method'           => $request->getMethod(),
-                'headers'          => array('foo' => 'bar'),
-                'raw_datas'        => 'foo=bar',
-                'datas'            => array('baz' => 'bat'),
-                'files'            => array('bit' => __FILE__),
-                'parameters'       => array('ban' => 'bor'),
-            ),
-            $debug['request']
-        );
-
-        $this->assertArrayHasKey('response', $debug);
-        $this->assertSame(
-            array(
-                'protocol_version' => $response->getProtocolVersion(),
-                'status_code'      => $response->getStatusCode(),
-                'reason_phrase'    => $response->getReasonPhrase(),
-                'headers'          => array('bal' => 'bol'),
-                'body'             => 'body',
-                'parameters'       => array('bil' => 'bob'),
-            ),
-            $debug['response']
-        );
+            $this->assertArrayHasKey('response', $debug);
+            $this->assertSame(
+                array(
+                    'protocol_version' => $response->getProtocolVersion(),
+                    'status_code'      => $response->getStatusCode(),
+                    'reason_phrase'    => $response->getReasonPhrase(),
+                    'headers'          => array('bal' => 'bol'),
+                    'body'             => 'body',
+                    'parameters'       => array('bil' => 'bob'),
+                ),
+                $debug['response']
+            );
+        }
     }
 
     public function testExceptionEvent()
     {
         $httpAdapter = $this->createHttpAdapterMock();
         $request = $this->createRequestMock();
-        $exception = $this->createExceptionMock();
+        $exception = $this->createExceptionMock($request);
 
         $this->dataCollector->onPreSend($this->createPreSendEvent($httpAdapter, $request));
-        $this->dataCollector->onException($this->createExceptionEvent($httpAdapter, $request, $exception));
+        $this->dataCollector->onException($this->createExceptionEvent($httpAdapter, $exception));
 
         $this->assertCount(1, $this->dataCollector);
-        $this->assertCount(1, $exceptions = $this->dataCollector->getExceptions());
+        $this->assertCount(1, $this->dataCollector->getExceptions());
         $this->assertEmpty($this->dataCollector->getResponses());
 
-        $this->assertArrayHasKey(0, $exceptions);
-        $debug = $exceptions[0];
+        foreach ($this->dataCollector->getExceptions() as $debug) {
+            $this->assertArrayHasKey('adapter', $debug);
+            $this->assertSame('name', $debug['adapter']);
 
-        $this->assertArrayHasKey('time', $debug);
-        $this->assertSame($this->dataCollector->getTime(), $debug['time']);
-        $this->assertGreaterThan(0, $debug['time']);
-        $this->assertLessThan(1, $debug['time']);
+            $this->assertArrayHasKey('request', $debug);
+            $this->assertSame(
+                array(
+                    'protocol_version' => $request->getProtocolVersion(),
+                    'url'              => $request->getUrl(),
+                    'method'           => $request->getMethod(),
+                    'headers'          => array('foo' => 'bar'),
+                    'raw_datas'        => 'foo=bar',
+                    'datas'            => array('baz' => 'bat'),
+                    'files'            => array('bit' => __FILE__),
+                    'parameters'       => array('time' => 0.1),
+                ),
+                $debug['request']
+            );
 
-        $this->assertArrayHasKey('adapter', $debug);
-        $this->assertSame('name', $debug['adapter']);
+            $this->assertArrayHasKey('exception', $debug);
+            $this->assertSame(
+                array(
+                    'code'    => $exception->getCode(),
+                    'message' => $exception->getMessage(),
+                    'line'    => $exception->getLine(),
+                    'file'    => $exception->getFile(),
+                ),
+                $debug['exception']
+            );
+        }
+    }
 
-        $this->assertArrayHasKey('request', $debug);
-        $this->assertSame(
-            array(
-                'protocol_version' => $request->getProtocolVersion(),
-                'url'              => $request->getUrl(),
-                'method'           => $request->getMethod(),
-                'headers'          => array('foo' => 'bar'),
-                'raw_datas'        => 'foo=bar',
-                'datas'            => array('baz' => 'bat'),
-                'files'            => array('bit' => __FILE__),
-                'parameters'       => array('ban' => 'bor'),
-            ),
-            $debug['request']
+    public function testMultiPostSendEvent()
+    {
+        $httpAdapter = $this->createHttpAdapterMock();
+
+        $requests = array(
+            $request1 = $this->createRequestMock(),
+            $request2 = $this->createRequestMock(),
         );
 
-        $this->assertArrayHasKey('exception', $debug);
-        $this->assertSame(
-            array(
-                'code'    => $exception->getCode(),
-                'message' => $exception->getMessage(),
-                'line'    => $exception->getLine(),
-                'file'    => $exception->getFile(),
-            ),
-            $debug['exception']
+        $responses = array(
+            $response1 = $this->createResponseMock($request1),
+            $this->createResponseMock($request2),
         );
+
+        $this->dataCollector->onMultiPreSend($this->createMultiPreSendEvent($httpAdapter, $requests));
+        $this->dataCollector->onMultiPostSend($this->createMultiPostSendEvent($httpAdapter, $responses));
+
+        $this->assertCount(count($responses), $this->dataCollector);
+        $this->assertCount(count($responses), $this->dataCollector->getResponses());
+        $this->assertEmpty($this->dataCollector->getExceptions());
+
+        foreach ($this->dataCollector->getResponses() as $debug) {
+            $this->assertArrayHasKey('adapter', $debug);
+            $this->assertSame('name', $debug['adapter']);
+
+            $this->assertArrayHasKey('request', $debug);
+            $this->assertSame(
+                array(
+                    'protocol_version' => $request1->getProtocolVersion(),
+                    'url'              => $request1->getUrl(),
+                    'method'           => $request1->getMethod(),
+                    'headers'          => array('foo' => 'bar'),
+                    'raw_datas'        => 'foo=bar',
+                    'datas'            => array('baz' => 'bat'),
+                    'files'            => array('bit' => __FILE__),
+                    'parameters'       => array('time' => 0.1),
+                ),
+                $debug['request']
+            );
+
+            $this->assertArrayHasKey('response', $debug);
+            $this->assertSame(
+                array(
+                    'protocol_version' => $response1->getProtocolVersion(),
+                    'status_code'      => $response1->getStatusCode(),
+                    'reason_phrase'    => $response1->getReasonPhrase(),
+                    'headers'          => array('bal' => 'bol'),
+                    'body'             => 'body',
+                    'parameters'       => array('bil' => 'bob'),
+                ),
+                $debug['response']
+            );
+        }
+    }
+
+    public function testMultiExceptionEvent()
+    {
+        $httpAdapter = $this->createHttpAdapterMock();
+
+        $requests = array(
+            $request1 = $this->createRequestMock(),
+            $request2 = $this->createRequestMock(),
+        );
+
+        $exceptions = array(
+            $exception1 = $this->createExceptionMock($request1),
+            $this->createExceptionMock($request2),
+        );
+
+        $this->dataCollector->onMultiPreSend($this->createMultiPreSendEvent($httpAdapter, $requests));
+        $this->dataCollector->onMultiException($this->createMultiExceptionEvent($httpAdapter, $exceptions));
+
+        $this->assertCount(count($exceptions), $this->dataCollector);
+        $this->assertCount(count($exceptions), $this->dataCollector->getExceptions());
+        $this->assertEmpty($this->dataCollector->getResponses());
+
+        foreach ($this->dataCollector->getExceptions() as $debug) {
+            $this->assertArrayHasKey('adapter', $debug);
+            $this->assertSame('name', $debug['adapter']);
+
+            $this->assertArrayHasKey('request', $debug);
+            $this->assertSame(
+                array(
+                    'protocol_version' => $request1->getProtocolVersion(),
+                    'url'              => $request1->getUrl(),
+                    'method'           => $request1->getMethod(),
+                    'headers'          => array('foo' => 'bar'),
+                    'raw_datas'        => 'foo=bar',
+                    'datas'            => array('baz' => 'bat'),
+                    'files'            => array('bit' => __FILE__),
+                    'parameters'       => array('time' => 0.1),
+                ),
+                $debug['request']
+            );
+
+            $this->assertArrayHasKey('exception', $debug);
+            $this->assertSame(
+                array(
+                    'code'    => $exception1->getCode(),
+                    'message' => $exception1->getMessage(),
+                    'line'    => $exception1->getLine(),
+                    'file'    => $exception1->getFile(),
+                ),
+                $debug['exception']
+            );
+        }
     }
 
     public function testSerialize()
@@ -225,22 +324,58 @@ class IvoryHttpAdapterDataCollectorTest extends \PHPUnit_Framework_TestCase
     /**
      * Creates an exception event.
      *
-     * @param \Ivory\HttpAdapter\HttpAdapterInterface|null             $httpAdapter The http adapter.
-     * @param \Ivory\HttpAdapter\Message\InternalRequestInterface|null $request     The request.
-     * @param \Ivory\HttpAdapter\HttpAdapterException|null             $exception   The exception.
+     * @param \Ivory\HttpAdapter\HttpAdapterInterface|null $httpAdapter The http adapter.
+     * @param \Ivory\HttpAdapter\HttpAdapterException|null $exception   The exception.
      *
      * @return \Ivory\HttpAdapter\Event\ExceptionEvent The exception event.
      */
     private function createExceptionEvent(
         HttpAdapterInterface $httpAdapter = null,
-        InternalRequestInterface $request = null,
         HttpAdapterException $exception = null
     ) {
         return new ExceptionEvent(
             $httpAdapter ?: $this->createHttpAdapterMock(),
-            $request ?: $this->createRequestMock(),
             $exception ?: $this->createExceptionMock()
         );
+    }
+
+    /**
+     * Creates a multi pre send event.
+     *
+     * @param \Ivory\HttpAdapter\HttpAdapterInterface|null $httpAdapter The http adapter.
+     * @param array                                        $requests    The requests.
+     *
+     * @return \Ivory\HttpAdapter\Event\MultiPreSendEvent The multi pre send event.
+     */
+    private function createMultiPreSendEvent(HttpAdapterInterface $httpAdapter = null, array $requests = array())
+    {
+        return new MultiPreSendEvent($httpAdapter ?: $this->createHttpAdapterMock(), $requests);
+    }
+
+    /**
+     * Creates a multi post send event.
+     *
+     * @param \Ivory\HttpAdapter\HttpAdapterInterface|null $httpAdapter The http adapter.
+     * @param array                                        $responses   The responses.
+     *
+     * @return \Ivory\HttpAdapter\Event\MultiPostSendEvent The multi post send event.
+     */
+    private function createMultiPostSendEvent(HttpAdapterInterface $httpAdapter = null, array $responses = array())
+    {
+        return new MultiPostSendEvent($httpAdapter ?: $this->createHttpAdapterMock(), $responses);
+    }
+
+    /**
+     * Creates a multi exception event.
+     *
+     * @param \Ivory\HttpAdapter\HttpAdapterInterface|null $httpAdapter The http adapter.
+     * @param array                                        $exceptions  The exceptions.
+     *
+     * @return \Ivory\HttpAdapter\Event\MultiExceptionEvent The multi exception event.
+     */
+    private function createMultiExceptionEvent(HttpAdapterInterface $httpAdapter = null, array $exceptions = array())
+    {
+        return new MultiExceptionEvent($httpAdapter ?: $this->createHttpAdapterMock(), $exceptions);
     }
 
     /**
@@ -320,7 +455,7 @@ class IvoryHttpAdapterDataCollectorTest extends \PHPUnit_Framework_TestCase
         $request
             ->expects($this->any())
             ->method('getParameters')
-            ->will($this->returnValue(array('ban' => 'bor')));
+            ->will($this->returnValue(array('time' => 0.1)));
 
         return $request;
     }
@@ -328,9 +463,11 @@ class IvoryHttpAdapterDataCollectorTest extends \PHPUnit_Framework_TestCase
     /**
      * Creates a response mock.
      *
+     * @param \Ivory\HttpAdapter\Message\InternalRequestInterface|null $request The request.
+     *
      * @return \Ivory\HttpAdapter\Message\ResponseInterface|\PHPUnit_Framework_MockObject_MockObject The response mock.
      */
-    private function createResponseMock()
+    private function createResponseMock(InternalRequestInterface $request = null)
     {
         $response = $this->getMock('Ivory\HttpAdapter\Message\ResponseInterface');
         $response
@@ -363,15 +500,32 @@ class IvoryHttpAdapterDataCollectorTest extends \PHPUnit_Framework_TestCase
             ->method('getParameters')
             ->will($this->returnValue(array('bil' => 'bob')));
 
+        if ($request !== null) {
+            $response
+                ->expects($this->any())
+                ->method('hasParameter')
+                ->with($this->identicalTo('request'))
+                ->will($this->returnValue(true));
+
+            $response
+                ->expects($this->any())
+                ->method('getParameter')
+                ->with($this->identicalTo('request'))
+                ->will($this->returnValue($request));
+        }
+
         return $response;
     }
 
     /**
      * Creates an exception mock.
      *
+     * @param \Ivory\HttpAdapter\Message\InternalRequestInterface|null $request  The request.
+     * @param \Ivory\HttpAdapter\Message\ResponseInterface|null        $response The response.
+     *
      * @return \Ivory\HttpAdapter\HttpAdapterException|\PHPUnit_Framework_MockObject_MockObject The exception mock.
      */
-    private function createExceptionMock()
+    private function createExceptionMock(InternalRequestInterface $request = null, ResponseInterface $response = null)
     {
         $exception = $this->getMock('Ivory\HttpAdapter\HttpAdapterException');
         $exception
@@ -393,6 +547,30 @@ class IvoryHttpAdapterDataCollectorTest extends \PHPUnit_Framework_TestCase
             ->expects($this->any())
             ->method('getFile')
             ->will($this->returnValue(__FILE__));
+
+        if ($request !== null) {
+            $exception
+                ->expects($this->any())
+                ->method('hasRequest')
+                ->will($this->returnValue(true));
+
+            $exception
+                ->expects($this->any())
+                ->method('getRequest')
+                ->will($this->returnValue($request));
+        }
+
+        if ($response !== null) {
+            $exception
+                ->expects($this->any())
+                ->method('hasRsponse')
+                ->will($this->returnValue(true));
+
+            $exception
+                ->expects($this->any())
+                ->method('getResponse')
+                ->will($this->returnValue($response));
+        }
 
         return $exception;
     }

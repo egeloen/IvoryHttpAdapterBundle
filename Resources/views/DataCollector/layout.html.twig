@@ -39,7 +39,7 @@
                                 <tr{% if item.exception is defined %} class="ivory-http-adapter-toolbar-error"{% endif %}>
                                     <td class="ivory-http-adapter-toolbar-url">{{ item.request.url }}</td>
                                     <td>{{ item.request.method }}</td>
-                                    <td>{{ (item.time * 1000) | round }} ms</td>
+                                    <td>{{ (item.request.parameters.time * 1000) | round }} ms</td>
                                 </tr>
                             {% endfor %}
                             {% if items | length > 1 %}

@@ -13,8 +13,16 @@ namespace Ivory\HttpAdapterBundle\DataCollector;
 
 use Ivory\HttpAdapter\Event\Events;
 use Ivory\HttpAdapter\Event\ExceptionEvent;
+use Ivory\HttpAdapter\Event\MultiExceptionEvent;
+use Ivory\HttpAdapter\Event\MultiPostSendEvent;
+use Ivory\HttpAdapter\Event\MultiPreSendEvent;
 use Ivory\HttpAdapter\Event\PostSendEvent;
-use Ivory\HttpAdapter\Event\Subscriber\AbstractDebuggerSubscriber;
+use Ivory\HttpAdapter\Event\PreSendEvent;
+use Ivory\HttpAdapter\Event\Subscriber\AbstractFormatterSubscriber;
+use Ivory\HttpAdapter\HttpAdapterException;
+use Ivory\HttpAdapter\HttpAdapterInterface;
+use Ivory\HttpAdapter\Message\InternalRequestInterface;
+use Ivory\HttpAdapter\Message\ResponseInterface;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpKernel\DataCollector\DataCollectorInterface;
@@ -25,7 +33,7 @@ use Symfony\Component\HttpKernel\DataCollector\DataCollectorInterface;
  * @author GeLo <geloen.eric@gmail.com>
  */
 class IvoryHttpAdapterDataCollector
-    extends AbstractDebuggerSubscriber
+    extends AbstractFormatterSubscriber
     implements DataCollectorInterface, \Countable, \Serializable
 {
     /** @var array */
@@ -72,10 +80,20 @@ class IvoryHttpAdapterDataCollector
         $time = 0;
 
         foreach (array_merge($this->datas['responses'], $this->datas['exceptions']) as $datas) {
-            $time += $datas['time'];
+            $time += $datas['request']['parameters']['time'];
         }
 
         return $time;
+    }
+
+    /**
+     * On pre send event.
+     *
+     * @param \Ivory\HttpAdapter\Event\PreSendEvent $event The pre send event.
+     */
+    public function onPreSend(PreSendEvent $event)
+    {
+        $this->getTimer()->start($event->getRequest());
     }
 
     /**
@@ -85,7 +103,7 @@ class IvoryHttpAdapterDataCollector
      */
     public function onPostSend(PostSendEvent $event)
     {
-        $this->datas['responses'][] = parent::onPostSend($event);
+        $this->collectResponse($event->getHttpAdapter(), $event->getRequest(), $event->getResponse());
     }
 
     /**
@@ -95,7 +113,43 @@ class IvoryHttpAdapterDataCollector
      */
     public function onException(ExceptionEvent $event)
     {
-        $this->datas['exceptions'][] = parent::onException($event);
+        $this->collectException($event->getHttpAdapter(), $event->getException());
+    }
+
+    /**
+     * On multi pre send event.
+     *
+     * @param \Ivory\HttpAdapter\Event\MultiPreSendEvent $event The multi pre send event.
+     */
+    public function onMultiPreSend(MultiPreSendEvent $event)
+    {
+        foreach ($event->getRequests() as $request) {
+            $this->getTimer()->start($request);
+        }
+    }
+
+    /**
+     * On multi post send event.
+     *
+     * @param \Ivory\HttpAdapter\Event\MultiPostSendEvent $event The mutli post send event.
+     */
+    public function onMultiPostSend(MultiPostSendEvent $event)
+    {
+        foreach ($event->getResponses() as $response) {
+            $this->collectResponse($event->getHttpAdapter(), $response->getParameter('request'), $response);
+        }
+    }
+
+    /**
+     * On multi exception event.
+     *
+     * @param \Ivory\HttpAdapter\Event\MultiExceptionEvent $event The multi exception event.
+     */
+    public function onMultiException(MultiExceptionEvent $event)
+    {
+        foreach ($event->getExceptions() as $exception) {
+            $this->collectException($event->getHttpAdapter(), $exception);
+        }
     }
 
     /**
@@ -136,9 +190,53 @@ class IvoryHttpAdapterDataCollector
     public static function getSubscribedEvents()
     {
         return array(
-            Events::PRE_SEND  => array('onPreSend', 100),
-            Events::POST_SEND => array('onPostSend', 100),
-            Events::EXCEPTION => array('onException', 100),
+            Events::PRE_SEND        => array('onPreSend', 100),
+            Events::POST_SEND       => array('onPostSend', 100),
+            Events::EXCEPTION       => array('onException', 100),
+            Events::MULTI_PRE_SEND  => array('onMultiPreSend', 100),
+            Events::MULTI_POST_SEND => array('onMultiPostSend', 100),
+            Events::MULTI_EXCEPTION => array('onMultiException', 100),
+        );
+    }
+
+    /**
+     * Collects a response.
+     *
+     * @param \Ivory\HttpAdapter\HttpAdapterInterface             $httpAdapter The http adapter.
+     * @param \Ivory\HttpAdapter\Message\InternalRequestInterface $request     The request.
+     * @param \Ivory\HttpAdapter\Message\ResponseInterface        $response    The response.
+     */
+    private function collectResponse(
+        HttpAdapterInterface $httpAdapter,
+        InternalRequestInterface $request,
+        ResponseInterface $response
+    ) {
+        $this->getTimer()->stop($request);
+
+        $this->datas['responses'][] = array(
+            'adapter'  => $httpAdapter->getName(),
+            'request'  => $this->getFormatter()->formatRequest($request),
+            'response' => $this->getFormatter()->formatResponse($response),
+        );
+    }
+
+    /**
+     * Collects an exception.
+     *
+     * @param \Ivory\HttpAdapter\HttpAdapterInterface $httpAdapter The http adapter.
+     * @param \Ivory\HttpAdapter\HttpAdapterException $exception   The exception.
+     */
+    private function collectException(HttpAdapterInterface $httpAdapter, HttpAdapterException $exception)
+    {
+        $this->getTimer()->stop($exception->getRequest());
+
+        $this->datas['exceptions'][] = array(
+            'adapter'   => $httpAdapter->getName(),
+            'exception' => $this->getFormatter()->formatException($exception),
+            'request'   => $this->getFormatter()->formatRequest($exception->getRequest()),
+            'response'  => $exception->hasResponse()
+                ? $this->getFormatter()->formatResponse($exception->getResponse())
+                : null,
         );
     }
 }

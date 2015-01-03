@@ -20,13 +20,20 @@ use Ivory\HttpAdapterBundle\IvoryHttpAdapterBundle;
  */
 class IvoryHttpAdapterBundleTest extends \PHPUnit_Framework_TestCase
 {
+    /** @var \Ivory\HttpAdapterBundle\IvoryHttpAdapterBundle */
     private $bundle;
 
+    /**
+     * {@inheritdoc}
+     */
     protected function setUp()
     {
         $this->bundle = new IvoryHttpAdapterBundle();
     }
 
+    /**
+     * {@inheritdoc}
+     */
     protected function tearDown()
     {
         unset($this->bundle);
@@ -39,7 +46,7 @@ class IvoryHttpAdapterBundleTest extends \PHPUnit_Framework_TestCase
 
     public function testRegisterListenerCompilerPass()
     {
-        $container = $this->getMock('Symfony\Component\DependencyInjection\ContainerBuilder');
+        $container = $this->getMock('Symfony\Component\DependencyInjection\ContainerBuilder', array('addCompilerPass'));
         $container
             ->expects($this->once())
             ->method('addCompilerPass')
