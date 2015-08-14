@@ -183,9 +183,10 @@ class IvoryHttpAdapterExtension extends ConfigurableExtension
     /**
      * Creates a subscriber definition.
      *
-     * @param string       $adapterName    The adatper name.
-     * @param string       $subscriberName The subscriber name.
-     * @param array|string $configuration  The configuration.
+     * @param string                                                  $adapterName    The adatper name.
+     * @param string                                                  $subscriberName The subscriber name.
+     * @param array|string                                            $configuration  The configuration.
+     * @param \Symfony\Component\DependencyInjection\ContainerBuilder $container      The container builder.
      *
      * @return \Symfony\Component\DependencyInjection\DefinitionDecorator The subscriber definition.
      */
