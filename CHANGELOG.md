@@ -1,6 +1,6 @@
 # CHANGELOG
 
-### 0.8.0 (????-??-??)
+### 0.8.0 (2015-08-23)
 
  * c67c0a4 - Update according to egeloen/http-adapter 0.8
 
