@@ -15,7 +15,6 @@ use Ivory\HttpAdapter\Event\Events;
 use Ivory\HttpAdapterBundle\DependencyInjection\Compiler\RegisterListenerCompilerPass;
 use Ivory\HttpAdapterBundle\DependencyInjection\IvoryHttpAdapterExtension;
 use Symfony\Component\DependencyInjection\ContainerBuilder;
-use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 
 /**
  * Abstract Ivory http adapter extension test.
@@ -32,25 +31,6 @@ abstract class AbstractIvoryHttpAdapterExtensionTest extends \PHPUnit_Framework_
      */
     protected function setUp()
     {
-        if (!defined('APP_DIR')) {
-            define('APP_DIR', 'app');
-        }
-
-        if (!defined('DS')) {
-            define('DS', DIRECTORY_SEPARATOR);
-        }
-
-        if (!defined('ROOT')) {
-            define('ROOT', realpath(__DIR__.'/../../vendor/cakephp/cakephp'));
-        }
-
-        if (!defined('WWW_ROOT')) {
-            define('WWW_ROOT', ROOT.DS.APP_DIR.DS.'webroot'.DS);
-        }
-
-        require_once __DIR__.'/../../vendor/cakephp/cakephp/lib/Cake/bootstrap.php';
-        \App::uses('HttpSocket', 'Network/Http');
-
         $this->container = new ContainerBuilder();
         $this->container->setParameter('kernel.debug', false);
         $this->container->addCompilerPass(new RegisterListenerCompilerPass());
@@ -111,7 +91,7 @@ abstract class AbstractIvoryHttpAdapterExtensionTest extends \PHPUnit_Framework_
 
         $stopwatchListener = $this->assertListener(
             $eventDispatcher = $this->container->get('ivory.http_adapter.default.event_dispatcher'),
-            Events::PRE_SEND,
+            Events::REQUEST_CREATED,
             'Ivory\HttpAdapter\Event\Subscriber\StopwatchSubscriber',
             false
         );
@@ -120,7 +100,7 @@ abstract class AbstractIvoryHttpAdapterExtensionTest extends \PHPUnit_Framework_
 
         $dataCollector = $this->assertListener(
             $eventDispatcher,
-            Events::PRE_SEND,
+            Events::REQUEST_CREATED,
             'Ivory\HttpAdapterBundle\DataCollector\IvoryHttpAdapterDataCollector',
             false
         );
@@ -133,6 +113,13 @@ abstract class AbstractIvoryHttpAdapterExtensionTest extends \PHPUnit_Framework_
      */
     public function testHttpAdapter($configuration, $service, $class)
     {
+        if (($configuration === 'guzzle4' && !class_exists('GuzzleHttp\Adapter\Curl\CurlAdapter'))
+            || ($configuration === 'guzzle5' && !class_exists('GuzzleHttp\Ring\Client\CurlHandler'))
+            || ($configuration === 'guzzle6') && !class_exists('GuzzleHttp\Handler\CurlHandler')
+            || ($configuration === 'pecl_http') && !extension_loaded('pecl_http')) {
+            $this->markTestSkipped();
+        }
+
         $this->loadConfiguration($this->container, $configuration);
         $this->container->compile();
 
@@ -203,7 +190,7 @@ abstract class AbstractIvoryHttpAdapterExtensionTest extends \PHPUnit_Framework_
 
         $listener = $this->assertListener(
             $this->container->get('ivory.http_adapter.default.event_dispatcher'),
-            Events::PRE_SEND,
+            Events::REQUEST_CREATED,
             'Ivory\HttpAdapter\Event\Subscriber\BasicAuthSubscriber'
         );
 
@@ -224,7 +211,7 @@ abstract class AbstractIvoryHttpAdapterExtensionTest extends \PHPUnit_Framework_
 
         $listener = $this->assertListener(
             $this->container->get('ivory.http_adapter.default.event_dispatcher'),
-            Events::PRE_SEND,
+            Events::REQUEST_CREATED,
             'Ivory\HttpAdapter\Event\Subscriber\BasicAuthSubscriber'
         );
 
@@ -244,7 +231,7 @@ abstract class AbstractIvoryHttpAdapterExtensionTest extends \PHPUnit_Framework_
 
         $listener = $this->assertListener(
             $this->container->get('ivory.http_adapter.default.event_dispatcher'),
-            Events::PRE_SEND,
+            Events::REQUEST_CREATED,
             'Ivory\HttpAdapter\Event\Subscriber\CookieSubscriber'
         );
 
@@ -269,7 +256,7 @@ abstract class AbstractIvoryHttpAdapterExtensionTest extends \PHPUnit_Framework_
 
         $listener = $this->assertListener(
             $this->container->get('ivory.http_adapter.default.event_dispatcher'),
-            Events::PRE_SEND,
+            Events::REQUEST_CREATED,
             'Ivory\HttpAdapter\Event\Subscriber\CookieSubscriber'
         );
 
@@ -311,7 +298,7 @@ abstract class AbstractIvoryHttpAdapterExtensionTest extends \PHPUnit_Framework_
 
         $listener = $this->assertListener(
             $this->container->get('ivory.http_adapter.default.event_dispatcher'),
-            Events::PRE_SEND,
+            Events::REQUEST_CREATED,
             'Ivory\HttpAdapter\Event\Subscriber\CookieSubscriber'
         );
 
@@ -336,7 +323,7 @@ abstract class AbstractIvoryHttpAdapterExtensionTest extends \PHPUnit_Framework_
 
         $listener = $this->assertListener(
             $this->container->get('ivory.http_adapter.default.event_dispatcher'),
-            Events::PRE_SEND,
+            Events::REQUEST_CREATED,
             'Ivory\HttpAdapter\Event\Subscriber\HistorySubscriber'
         );
 
@@ -357,7 +344,7 @@ abstract class AbstractIvoryHttpAdapterExtensionTest extends \PHPUnit_Framework_
 
         $listener = $this->assertListener(
             $this->container->get('ivory.http_adapter.default.event_dispatcher'),
-            Events::PRE_SEND,
+            Events::REQUEST_CREATED,
             'Ivory\HttpAdapter\Event\Subscriber\HistorySubscriber'
         );
 
@@ -372,7 +359,7 @@ abstract class AbstractIvoryHttpAdapterExtensionTest extends \PHPUnit_Framework_
 
         $listener = $this->assertListener(
             $this->container->get('ivory.http_adapter.default.event_dispatcher'),
-            Events::PRE_SEND,
+            Events::REQUEST_CREATED,
             'Ivory\HttpAdapter\Event\Subscriber\LoggerSubscriber'
         );
 
@@ -387,7 +374,7 @@ abstract class AbstractIvoryHttpAdapterExtensionTest extends \PHPUnit_Framework_
 
         $listener = $this->assertListener(
             $this->container->get('ivory.http_adapter.default.event_dispatcher'),
-            Events::PRE_SEND,
+            Events::REQUEST_CREATED,
             'Ivory\HttpAdapter\Event\Subscriber\LoggerSubscriber'
         );
 
@@ -401,7 +388,7 @@ abstract class AbstractIvoryHttpAdapterExtensionTest extends \PHPUnit_Framework_
 
         $listener = $this->assertListener(
             $this->container->get('ivory.http_adapter.default.event_dispatcher'),
-            Events::POST_SEND,
+            Events::REQUEST_SENT,
             'Ivory\HttpAdapter\Event\Subscriber\RedirectSubscriber'
         );
 
@@ -422,7 +409,7 @@ abstract class AbstractIvoryHttpAdapterExtensionTest extends \PHPUnit_Framework_
 
         $listener = $this->assertListener(
             $this->container->get('ivory.http_adapter.default.event_dispatcher'),
-            Events::POST_SEND,
+            Events::REQUEST_SENT,
             'Ivory\HttpAdapter\Event\Subscriber\RedirectSubscriber'
         );
 
@@ -443,7 +430,7 @@ abstract class AbstractIvoryHttpAdapterExtensionTest extends \PHPUnit_Framework_
 
         $this->assertListener(
             $this->container->get('ivory.http_adapter.default.event_dispatcher'),
-            Events::EXCEPTION,
+            Events::REQUEST_ERRORED,
             'Ivory\HttpAdapter\Event\Subscriber\RetrySubscriber'
         );
     }
@@ -455,7 +442,7 @@ abstract class AbstractIvoryHttpAdapterExtensionTest extends \PHPUnit_Framework_
 
         $this->assertListener(
             $this->container->get('ivory.http_adapter.default.event_dispatcher'),
-            Events::POST_SEND,
+            Events::REQUEST_SENT,
             'Ivory\HttpAdapter\Event\Subscriber\StatusCodeSubscriber'
         );
     }
@@ -468,7 +455,7 @@ abstract class AbstractIvoryHttpAdapterExtensionTest extends \PHPUnit_Framework_
 
         $listener = $this->assertListener(
             $this->container->get('ivory.http_adapter.default.event_dispatcher'),
-            Events::PRE_SEND,
+            Events::REQUEST_CREATED,
             'Ivory\HttpAdapter\Event\Subscriber\StopwatchSubscriber'
         );
 
@@ -483,7 +470,7 @@ abstract class AbstractIvoryHttpAdapterExtensionTest extends \PHPUnit_Framework_
 
         $listener = $this->assertListener(
             $this->container->get('ivory.http_adapter.default.event_dispatcher'),
-            Events::PRE_SEND,
+            Events::REQUEST_CREATED,
             'Ivory\HttpAdapter\Event\Subscriber\StopwatchSubscriber'
         );
 
@@ -572,7 +559,7 @@ abstract class AbstractIvoryHttpAdapterExtensionTest extends \PHPUnit_Framework_
 
         $localListener = $this->assertListener(
             $this->container->get('ivory.http_adapter.local.event_dispatcher'),
-            Events::PRE_SEND,
+            Events::REQUEST_CREATED,
             'Ivory\HttpAdapter\Event\Subscriber\BasicAuthSubscriber'
         );
 
@@ -598,7 +585,7 @@ abstract class AbstractIvoryHttpAdapterExtensionTest extends \PHPUnit_Framework_
 
         $localListener = $this->assertListener(
             $this->container->get('ivory.http_adapter.local.event_dispatcher'),
-            Events::PRE_SEND,
+            Events::REQUEST_CREATED,
             'Ivory\HttpAdapter\Event\Subscriber\BasicAuthSubscriber'
         );
 
@@ -625,7 +612,7 @@ abstract class AbstractIvoryHttpAdapterExtensionTest extends \PHPUnit_Framework_
 
         $listener = $this->assertListener(
             $this->container->get('ivory.http_adapter.local.event_dispatcher'),
-            Events::PRE_SEND,
+            Events::REQUEST_CREATED,
             'Ivory\HttpAdapter\Event\Subscriber\CookieSubscriber'
         );
 
@@ -655,7 +642,7 @@ abstract class AbstractIvoryHttpAdapterExtensionTest extends \PHPUnit_Framework_
 
         $listener = $this->assertListener(
             $this->container->get('ivory.http_adapter.local.event_dispatcher'),
-            Events::PRE_SEND,
+            Events::REQUEST_CREATED,
             'Ivory\HttpAdapter\Event\Subscriber\CookieSubscriber'
         );
 
@@ -702,7 +689,7 @@ abstract class AbstractIvoryHttpAdapterExtensionTest extends \PHPUnit_Framework_
 
         $listener = $this->assertListener(
             $this->container->get('ivory.http_adapter.local.event_dispatcher'),
-            Events::PRE_SEND,
+            Events::REQUEST_CREATED,
             'Ivory\HttpAdapter\Event\Subscriber\CookieSubscriber'
         );
 
@@ -732,7 +719,7 @@ abstract class AbstractIvoryHttpAdapterExtensionTest extends \PHPUnit_Framework_
 
         $listener = $this->assertListener(
             $this->container->get('ivory.http_adapter.local.event_dispatcher'),
-            Events::PRE_SEND,
+            Events::REQUEST_CREATED,
             'Ivory\HttpAdapter\Event\Subscriber\HistorySubscriber'
         );
 
@@ -758,7 +745,7 @@ abstract class AbstractIvoryHttpAdapterExtensionTest extends \PHPUnit_Framework_
 
         $listener = $this->assertListener(
             $this->container->get('ivory.http_adapter.local.event_dispatcher'),
-            Events::PRE_SEND,
+            Events::REQUEST_CREATED,
             'Ivory\HttpAdapter\Event\Subscriber\HistorySubscriber'
         );
 
@@ -778,7 +765,7 @@ abstract class AbstractIvoryHttpAdapterExtensionTest extends \PHPUnit_Framework_
 
         $listener = $this->assertListener(
             $this->container->get('ivory.http_adapter.local.event_dispatcher'),
-            Events::PRE_SEND,
+            Events::REQUEST_CREATED,
             'Ivory\HttpAdapter\Event\Subscriber\LoggerSubscriber'
         );
 
@@ -798,7 +785,7 @@ abstract class AbstractIvoryHttpAdapterExtensionTest extends \PHPUnit_Framework_
 
         $listener = $this->assertListener(
             $this->container->get('ivory.http_adapter.local.event_dispatcher'),
-            Events::PRE_SEND,
+            Events::REQUEST_CREATED,
             'Ivory\HttpAdapter\Event\Subscriber\LoggerSubscriber'
         );
 
@@ -817,7 +804,7 @@ abstract class AbstractIvoryHttpAdapterExtensionTest extends \PHPUnit_Framework_
 
         $listener = $this->assertListener(
             $this->container->get('ivory.http_adapter.local.event_dispatcher'),
-            Events::POST_SEND,
+            Events::REQUEST_SENT,
             'Ivory\HttpAdapter\Event\Subscriber\RedirectSubscriber'
         );
 
@@ -843,7 +830,7 @@ abstract class AbstractIvoryHttpAdapterExtensionTest extends \PHPUnit_Framework_
 
         $listener = $this->assertListener(
             $this->container->get('ivory.http_adapter.local.event_dispatcher'),
-            Events::POST_SEND,
+            Events::REQUEST_SENT,
             'Ivory\HttpAdapter\Event\Subscriber\RedirectSubscriber'
         );
 
@@ -869,7 +856,7 @@ abstract class AbstractIvoryHttpAdapterExtensionTest extends \PHPUnit_Framework_
 
         $this->assertListener(
             $this->container->get('ivory.http_adapter.local.event_dispatcher'),
-            Events::EXCEPTION,
+            Events::REQUEST_ERRORED,
             'Ivory\HttpAdapter\Event\Subscriber\RetrySubscriber'
         );
 
@@ -886,7 +873,7 @@ abstract class AbstractIvoryHttpAdapterExtensionTest extends \PHPUnit_Framework_
 
         $this->assertListener(
             $this->container->get('ivory.http_adapter.local.event_dispatcher'),
-            Events::POST_SEND,
+            Events::REQUEST_SENT,
             'Ivory\HttpAdapter\Event\Subscriber\StatusCodeSubscriber'
         );
 
@@ -904,7 +891,7 @@ abstract class AbstractIvoryHttpAdapterExtensionTest extends \PHPUnit_Framework_
 
         $listener = $this->assertListener(
             $this->container->get('ivory.http_adapter.local.event_dispatcher'),
-            Events::PRE_SEND,
+            Events::REQUEST_CREATED,
             'Ivory\HttpAdapter\Event\Subscriber\StopwatchSubscriber'
         );
 
@@ -924,7 +911,7 @@ abstract class AbstractIvoryHttpAdapterExtensionTest extends \PHPUnit_Framework_
 
         $listener = $this->assertListener(
             $this->container->get('ivory.http_adapter.local.event_dispatcher'),
-            Events::PRE_SEND,
+            Events::REQUEST_CREATED,
             'Ivory\HttpAdapter\Event\Subscriber\StopwatchSubscriber'
         );
 
@@ -943,7 +930,7 @@ abstract class AbstractIvoryHttpAdapterExtensionTest extends \PHPUnit_Framework_
 
         $listener = $this->assertListener(
             $this->container->get('ivory.http_adapter.default.event_dispatcher'),
-            Events::POST_SEND,
+            Events::REQUEST_SENT,
             'Ivory\HttpAdapter\Event\Subscriber\StatusCodeSubscriber'
         );
 
@@ -957,7 +944,7 @@ abstract class AbstractIvoryHttpAdapterExtensionTest extends \PHPUnit_Framework_
 
         $listener = $this->assertListener(
             $this->container->get('ivory.http_adapter.local.event_dispatcher'),
-            Events::POST_SEND,
+            Events::REQUEST_SENT,
             'Ivory\HttpAdapter\Event\Subscriber\StatusCodeSubscriber'
         );
 
@@ -976,7 +963,7 @@ abstract class AbstractIvoryHttpAdapterExtensionTest extends \PHPUnit_Framework_
 
         $listener = $this->assertListener(
             $this->container->get('ivory.http_adapter.default.event_dispatcher'),
-            Events::POST_SEND,
+            Events::REQUEST_SENT,
             'Ivory\HttpAdapter\Event\Subscriber\StatusCodeSubscriber'
         );
 
@@ -990,7 +977,7 @@ abstract class AbstractIvoryHttpAdapterExtensionTest extends \PHPUnit_Framework_
 
         $listener = $this->assertListener(
             $this->container->get('ivory.http_adapter.local.event_dispatcher'),
-            Events::POST_SEND,
+            Events::REQUEST_SENT,
             'Ivory\HttpAdapter\Event\Subscriber\StatusCodeSubscriber'
         );
 
@@ -1019,9 +1006,12 @@ abstract class AbstractIvoryHttpAdapterExtensionTest extends \PHPUnit_Framework_
                 'Ivory\HttpAdapter\FileGetContentsHttpAdapter',
             ),
             array('fopen', 'ivory.http_adapter.fopen', 'Ivory\HttpAdapter\FopenHttpAdapter'),
-            array('guzzle', 'ivory.http_adapter.guzzle', 'Ivory\HttpAdapter\GuzzleHttpAdapter'),
-            array('guzzle_http', 'ivory.http_adapter.guzzle_http', 'Ivory\HttpAdapter\GuzzleHttpHttpAdapter'),
+            array('guzzle3', 'ivory.http_adapter.guzzle3', 'Ivory\HttpAdapter\Guzzle3HttpAdapter'),
+            array('guzzle4', 'ivory.http_adapter.guzzle4', 'Ivory\HttpAdapter\Guzzle4HttpAdapter'),
+            array('guzzle5', 'ivory.http_adapter.guzzle5', 'Ivory\HttpAdapter\Guzzle5HttpAdapter'),
+            array('guzzle6', 'ivory.http_adapter.guzzle6', 'Ivory\HttpAdapter\Guzzle6HttpAdapter'),
             array('httpful', 'ivory.http_adapter.httpful', 'Ivory\HttpAdapter\HttpfulHttpAdapter'),
+            array('pecl_http', 'ivory.http_adapter.pecl_http', 'Ivory\HttpAdapter\PeclHttpAdapter'),
             array('react', 'ivory.http_adapter.react', 'Ivory\HttpAdapter\ReactHttpAdapter'),
             array('socket', 'ivory.http_adapter.socket', 'Ivory\HttpAdapter\SocketHttpAdapter'),
             array('zend1', 'ivory.http_adapter.zend1', 'Ivory\HttpAdapter\Zend1HttpAdapter'),

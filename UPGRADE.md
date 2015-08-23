@@ -1,5 +1,9 @@
 # UPGRADE
 
+### 0.7 to 0.8
+
+ * The Ivory http adapter library has BC breaks (See [here](https://github.com/egeloen/ivory-http-adapter/blob/master/UPGRADE.md#07-to-08)).
+
 ### 0.6 to 0.7
 
  * The Ivory http adapter library has BC breaks (See [here](https://github.com/egeloen/ivory-http-adapter/blob/master/UPGRADE.md#06-to-07)).

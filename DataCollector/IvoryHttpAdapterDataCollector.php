@@ -12,12 +12,12 @@
 namespace Ivory\HttpAdapterBundle\DataCollector;
 
 use Ivory\HttpAdapter\Event\Events;
-use Ivory\HttpAdapter\Event\ExceptionEvent;
-use Ivory\HttpAdapter\Event\MultiExceptionEvent;
-use Ivory\HttpAdapter\Event\MultiPostSendEvent;
-use Ivory\HttpAdapter\Event\MultiPreSendEvent;
-use Ivory\HttpAdapter\Event\PostSendEvent;
-use Ivory\HttpAdapter\Event\PreSendEvent;
+use Ivory\HttpAdapter\Event\MultiRequestCreatedEvent;
+use Ivory\HttpAdapter\Event\MultiRequestErroredEvent;
+use Ivory\HttpAdapter\Event\MultiRequestSentEvent;
+use Ivory\HttpAdapter\Event\RequestCreatedEvent;
+use Ivory\HttpAdapter\Event\RequestErroredEvent;
+use Ivory\HttpAdapter\Event\RequestSentEvent;
 use Ivory\HttpAdapter\Event\Subscriber\AbstractFormatterSubscriber;
 use Ivory\HttpAdapter\HttpAdapterException;
 use Ivory\HttpAdapter\HttpAdapterInterface;
@@ -37,10 +37,10 @@ class IvoryHttpAdapterDataCollector
     implements DataCollectorInterface, \Countable, \Serializable
 {
     /** @var array */
-    private $datas = array(
-        'responses'  => array(),
-        'exceptions' => array(),
-    );
+    private $datas = [
+        'responses'  => [],
+        'exceptions' => [],
+    ];
 
     /**
      * {@inheritdoc}
@@ -87,21 +87,21 @@ class IvoryHttpAdapterDataCollector
     }
 
     /**
-     * On pre send event.
+     * On request created event.
      *
-     * @param \Ivory\HttpAdapter\Event\PreSendEvent $event The pre send event.
+     * @param \Ivory\HttpAdapter\Event\RequestCreatedEvent $event The request created event.
      */
-    public function onPreSend(PreSendEvent $event)
+    public function onRequestCreated(RequestCreatedEvent $event)
     {
         $event->setRequest($this->getTimer()->start($event->getRequest()));
     }
 
     /**
-     * On post send event.
+     * On request sent event.
      *
-     * @param \Ivory\HttpAdapter\Event\PostSendEvent $event The post send event.
+     * @param \Ivory\HttpAdapter\Event\RequestSentEvent $event The request sent event.
      */
-    public function onPostSend(PostSendEvent $event)
+    public function onRequestSent(RequestSentEvent $event)
     {
         $event->setRequest($this->collectResponse(
             $event->getHttpAdapter(),
@@ -111,21 +111,21 @@ class IvoryHttpAdapterDataCollector
     }
 
     /**
-     * On exception event.
+     * On request errored event.
      *
-     * @param \Ivory\HttpAdapter\Event\ExceptionEvent $event The exception event.
+     * @param \Ivory\HttpAdapter\Event\RequestErroredEvent $event The request errored event.
      */
-    public function onException(ExceptionEvent $event)
+    public function onRequestErrored(RequestErroredEvent $event)
     {
         $event->getException()->setRequest($this->collectException($event->getHttpAdapter(), $event->getException()));
     }
 
     /**
-     * On multi pre send event.
+     * On multi request created event.
      *
-     * @param \Ivory\HttpAdapter\Event\MultiPreSendEvent $event The multi pre send event.
+     * @param \Ivory\HttpAdapter\Event\MultiRequestCreatedEvent $event The multi request created event.
      */
-    public function onMultiPreSend(MultiPreSendEvent $event)
+    public function onMultiRequestCreated(MultiRequestCreatedEvent $event)
     {
         $requests = [];
 
@@ -137,11 +137,11 @@ class IvoryHttpAdapterDataCollector
     }
 
     /**
-     * On multi post send event.
+     * On multi request send event.
      *
-     * @param \Ivory\HttpAdapter\Event\MultiPostSendEvent $event The mutli post send event.
+     * @param \Ivory\HttpAdapter\Event\MultiRequestSentEvent $event The mutli request send event.
      */
-    public function onMultiPostSend(MultiPostSendEvent $event)
+    public function onMultiRequestSent(MultiRequestSentEvent $event)
     {
         $responses = [];
 
@@ -156,11 +156,11 @@ class IvoryHttpAdapterDataCollector
     }
 
     /**
-     * On multi exception event.
+     * On multi request errored event.
      *
-     * @param \Ivory\HttpAdapter\Event\MultiExceptionEvent $event The multi exception event.
+     * @param \Ivory\HttpAdapter\Event\MultiRequestErroredEvent $event The multi request errored event.
      */
-    public function onMultiException(MultiExceptionEvent $event)
+    public function onMultiRequestErrored(MultiRequestErroredEvent $event)
     {
         foreach ($event->getExceptions() as $exception) {
             $exception->setRequest($this->collectException($event->getHttpAdapter(), $exception));
@@ -204,14 +204,14 @@ class IvoryHttpAdapterDataCollector
      */
     public static function getSubscribedEvents()
     {
-        return array(
-            Events::PRE_SEND        => array('onPreSend', 100),
-            Events::POST_SEND       => array('onPostSend', 100),
-            Events::EXCEPTION       => array('onException', 100),
-            Events::MULTI_PRE_SEND  => array('onMultiPreSend', 100),
-            Events::MULTI_POST_SEND => array('onMultiPostSend', 100),
-            Events::MULTI_EXCEPTION => array('onMultiException', 100),
-        );
+        return [
+            Events::REQUEST_CREATED       => ['onRequestCreated', 100],
+            Events::REQUEST_SENT          => ['onRequestSent', 100],
+            Events::REQUEST_ERRORED       => ['onRequestErrored', 100],
+            Events::MULTI_REQUEST_CREATED => ['onMultiRequestCreated', 100],
+            Events::MULTI_REQUEST_SENT    => ['onMultiRequestSent', 100],
+            Events::MULTI_REQUEST_ERRORED => ['onMultiRequestErrored', 100],
+        ];
     }
 
     /**
@@ -230,11 +230,11 @@ class IvoryHttpAdapterDataCollector
     ) {
         $request = $this->getTimer()->stop($request);
 
-        $this->datas['responses'][] = array(
+        $this->datas['responses'][] = [
             'adapter'  => $httpAdapter->getName(),
             'request'  => $this->getFormatter()->formatRequest($request),
             'response' => $this->getFormatter()->formatResponse($response),
-        );
+        ];
 
         return $request;
     }
@@ -251,14 +251,14 @@ class IvoryHttpAdapterDataCollector
     {
         $request = $this->getTimer()->stop($exception->getRequest());
 
-        $this->datas['exceptions'][] = array(
+        $this->datas['exceptions'][] = [
             'adapter'   => $httpAdapter->getName(),
             'exception' => $this->getFormatter()->formatException($exception),
             'request'   => $this->getFormatter()->formatRequest($request),
             'response'  => $exception->hasResponse()
                 ? $this->getFormatter()->formatResponse($exception->getResponse())
                 : null,
-        );
+        ];
 
         return $request;
     }

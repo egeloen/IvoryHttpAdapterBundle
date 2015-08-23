@@ -12,14 +12,14 @@
     ],
     "require": {
         "php": ">=5.4.8",
-        "egeloen/http-adapter": "^0.7",
+        "egeloen/http-adapter": "^0.8",
         "symfony/framework-bundle": "^2.2"
     },
     "require-dev": {
-        "cakephp/cakephp": "^2.0",
+        "cakephp/cakephp": "^3.0",
         "ext-curl": "*",
         "guzzle/guzzle": "^3.9.2",
-        "guzzlehttp/guzzle": "^4.1.4|^5.0",
+        "guzzlehttp/guzzle": "^4.1.4|^5.0|^6.0",
         "kriswallsmith/buzz": "^0.15",
         "nategood/httpful": "^0.2.17",
         "phpunit/phpunit": "^4.0",
@@ -37,7 +37,7 @@
     },
     "extra": {
         "branch-alias": {
-            "dev-master": "0.7-dev"
+            "dev-master": "0.8-dev"
         }
     }
 }

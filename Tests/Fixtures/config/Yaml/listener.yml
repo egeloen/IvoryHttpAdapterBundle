@@ -7,6 +7,6 @@ services:
         tags:
             -
                 name: ivory.http_adapter.listener
-                event: ivory.http_adapter.post_send
+                event: ivory.http_adapter.request_sent
                 method: onPostSend
                 priority: 10

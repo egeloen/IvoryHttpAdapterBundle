@@ -11,12 +11,12 @@
 
 namespace Ivory\HttpAdapterBundle\Tests\DataCollector;
 
-use Ivory\HttpAdapter\Event\ExceptionEvent;
-use Ivory\HttpAdapter\Event\MultiExceptionEvent;
-use Ivory\HttpAdapter\Event\MultiPostSendEvent;
-use Ivory\HttpAdapter\Event\MultiPreSendEvent;
-use Ivory\HttpAdapter\Event\PostSendEvent;
-use Ivory\HttpAdapter\Event\PreSendEvent;
+use Ivory\HttpAdapter\Event\MultiRequestCreatedEvent;
+use Ivory\HttpAdapter\Event\MultiRequestErroredEvent;
+use Ivory\HttpAdapter\Event\MultiRequestSentEvent;
+use Ivory\HttpAdapter\Event\RequestCreatedEvent;
+use Ivory\HttpAdapter\Event\RequestErroredEvent;
+use Ivory\HttpAdapter\Event\RequestSentEvent;
 use Ivory\HttpAdapter\HttpAdapterInterface;
 use Ivory\HttpAdapter\HttpAdapterException;
 use Ivory\HttpAdapter\Message\InternalRequestInterface;
@@ -95,16 +95,16 @@ class IvoryHttpAdapterDataCollectorTest extends \PHPUnit_Framework_TestCase
             ->expects($this->once())
             ->method('formatRequest')
             ->with($this->identicalTo($stoppedRequest))
-            ->will($this->returnValue($formattedRequest = array('request')));
+            ->will($this->returnValue($formattedRequest = ['request']));
 
         $this->formatter
             ->expects($this->once())
             ->method('formatResponse')
             ->with($this->identicalTo($response = $this->createResponseMock()))
-            ->will($this->returnValue($formattedResponse = array('response')));
+            ->will($this->returnValue($formattedResponse = ['response']));
 
-        $this->dataCollector->onPreSend($preSendEvent = $this->createPreSendEvent($httpAdapter, $request));
-        $this->dataCollector->onPostSend($this->createPostSendEvent($httpAdapter, $startedRequest, $response));
+        $this->dataCollector->onRequestCreated($preSendEvent = $this->createRequestCreatedEvent($httpAdapter, $request));
+        $this->dataCollector->onRequestSent($this->createRequestSentEvent($httpAdapter, $startedRequest, $response));
 
         $this->assertSame($startedRequest, $preSendEvent->getRequest());
 
@@ -145,7 +145,7 @@ class IvoryHttpAdapterDataCollectorTest extends \PHPUnit_Framework_TestCase
             ->expects($this->once())
             ->method('formatRequest')
             ->with($this->identicalTo($stoppedRequest))
-            ->will($this->returnValue($formattedRequest = array('request')));
+            ->will($this->returnValue($formattedRequest = ['request']));
 
         $exception = $this->createExceptionMock($startedRequest);
         $exception
@@ -157,10 +157,10 @@ class IvoryHttpAdapterDataCollectorTest extends \PHPUnit_Framework_TestCase
             ->expects($this->once())
             ->method('formatException')
             ->with($this->identicalTo($exception))
-            ->will($this->returnValue($formattedException = array('exception')));
+            ->will($this->returnValue($formattedException = ['exception']));
 
-        $this->dataCollector->onPreSend($preSendEvent = $this->createPreSendEvent($httpAdapter, $request));
-        $this->dataCollector->onException($this->createExceptionEvent($httpAdapter, $exception));
+        $this->dataCollector->onRequestCreated($preSendEvent = $this->createRequestCreatedEvent($httpAdapter, $request));
+        $this->dataCollector->onRequestErrored($this->createRequestErroredEvent($httpAdapter, $exception));
 
         $this->assertSame($startedRequest, $preSendEvent->getRequest());
 
@@ -239,8 +239,8 @@ class IvoryHttpAdapterDataCollectorTest extends \PHPUnit_Framework_TestCase
                 [$response2, $formattedResponse2 = ['response2']],
             ]));
 
-        $this->dataCollector->onMultiPreSend($this->createMultiPreSendEvent($httpAdapter, $requests));
-        $this->dataCollector->onMultiPostSend($this->createMultiPostSendEvent($httpAdapter, $responses));
+        $this->dataCollector->onMultiRequestCreated($this->createMultiRequestCreatedEvent($httpAdapter, $requests));
+        $this->dataCollector->onMultiRequestSent($this->createMultiRequestSentEvent($httpAdapter, $responses));
 
         $this->assertCount(count($responses), $this->dataCollector);
         $this->assertCount(count($responses), $responses = $this->dataCollector->getResponses());
@@ -274,10 +274,10 @@ class IvoryHttpAdapterDataCollectorTest extends \PHPUnit_Framework_TestCase
     {
         $httpAdapter = $this->createHttpAdapterMock();
 
-        $requests = array(
+        $requests = [
             $request1 = $this->createRequestMock(),
             $request2 = $this->createRequestMock(),
-        );
+        ];
 
         $this->timer
             ->expects($this->exactly(2))
@@ -298,26 +298,26 @@ class IvoryHttpAdapterDataCollectorTest extends \PHPUnit_Framework_TestCase
         $this->formatter
             ->expects($this->exactly(2))
             ->method('formatRequest')
-            ->will($this->returnValueMap(array(
-                array($stoppedRequest1, $formattedRequest1 = array('request1')),
-                array($stoppedRequest2, $formattedRequest2 = array('request2')),
-            )));
+            ->will($this->returnValueMap([
+                [$stoppedRequest1, $formattedRequest1 = ['request1']],
+                [$stoppedRequest2, $formattedRequest2 = ['request2']],
+            ]));
 
-        $exceptions = array(
+        $exceptions = [
             $exception1 = $this->createExceptionMock($startedRequest1),
             $exception2 = $this->createExceptionMock($startedRequest2),
-        );
+        ];
 
         $this->formatter
             ->expects($this->exactly(2))
             ->method('formatException')
-            ->will($this->returnValueMap(array(
-                array($exception1, $formattedException1 = array('exception1')),
-                array($exception2, $formattedException2 = array('exception2')),
-            )));
+            ->will($this->returnValueMap([
+                [$exception1, $formattedException1 = ['exception1']],
+                [$exception2, $formattedException2 = ['exception2']],
+            ]));
 
-        $this->dataCollector->onMultiPreSend($this->createMultiPreSendEvent($httpAdapter, $requests));
-        $this->dataCollector->onMultiException($this->createMultiExceptionEvent($httpAdapter, $exceptions));
+        $this->dataCollector->onMultiRequestCreated($this->createMultiRequestCreatedEvent($httpAdapter, $requests));
+        $this->dataCollector->onMultiRequestErrored($this->createMultiRequestErroredEvent($httpAdapter, $exceptions));
 
         $this->assertCount(2, $this->dataCollector);
         $this->assertCount(2, $exceptions = $this->dataCollector->getExceptions());
@@ -363,9 +363,9 @@ class IvoryHttpAdapterDataCollectorTest extends \PHPUnit_Framework_TestCase
             ->with($this->identicalTo($startedRequest))
             ->will($this->returnValue($stoppedRequest = $this->createRequestMock()));
 
-        $this->dataCollector->onPreSend($preSendEvent = $this->createPreSendEvent($httpAdapter, $request));
+        $this->dataCollector->onRequestCreated($preSendEvent = $this->createRequestCreatedEvent($httpAdapter, $request));
 
-        $this->dataCollector->onPostSend($this->createPostSendEvent(
+        $this->dataCollector->onRequestSent($this->createRequestSentEvent(
             $httpAdapter,
             $preSendEvent->getRequest(),
             $this->createResponseMock($preSendEvent->getRequest())
@@ -381,49 +381,49 @@ class IvoryHttpAdapterDataCollectorTest extends \PHPUnit_Framework_TestCase
 
     public function testSubscribedEvents()
     {
-        $this->assertSame(array(
-            'ivory.http_adapter.pre_send'        => array('onPreSend', 100),
-            'ivory.http_adapter.post_send'       => array('onPostSend', 100),
-            'ivory.http_adapter.exception'       => array('onException', 100),
-            'ivory.http_adapter.multi_pre_send'  => array('onMultiPreSend', 100),
-            'ivory.http_adapter.multi_post_send' => array('onMultiPostSend', 100),
-            'ivory.http_adapter.multi_exception' => array('onMultiException', 100),
-        ), $this->dataCollector->getSubscribedEvents());
+        $this->assertSame([
+            'ivory.http_adapter.request_created'       => ['onRequestCreated', 100],
+            'ivory.http_adapter.request_sent'          => ['onRequestSent', 100],
+            'ivory.http_adapter.request_errored'       => ['onRequestErrored', 100],
+            'ivory.http_adapter.multi_request_created' => ['onMultiRequestCreated', 100],
+            'ivory.http_adapter.multi_request_sent'    => ['onMultiRequestSent', 100],
+            'ivory.http_adapter.multi_request_errored' => ['onMultiRequestErrored', 100],
+        ], $this->dataCollector->getSubscribedEvents());
     }
 
     /**
-     * Creates a pre send event.
+     * Creates a request created event.
      *
      * @param \Ivory\HttpAdapter\HttpAdapterInterface|null             $httpAdapter The http adapter.
      * @param \Ivory\HttpAdapter\Message\InternalRequestInterface|null $request     The request.
      *
-     * @return \Ivory\HttpAdapter\Event\PreSendEvent The pre send event.
+     * @return \Ivory\HttpAdapter\Event\RequestCreatedEvent The request created event.
      */
-    private function createPreSendEvent(
+    private function createRequestCreatedEvent(
         HttpAdapterInterface $httpAdapter = null,
         InternalRequestInterface $request = null
     ) {
-        return new PreSendEvent(
+        return new RequestCreatedEvent(
             $httpAdapter ?: $this->createHttpAdapterMock(),
             $request ?: $this->createRequestMock()
         );
     }
 
     /**
-     * Creates a post send event.
+     * Creates a request send event.
      *
      * @param \Ivory\HttpAdapter\HttpAdapterInterface|null             $httpAdapter The http adapter.
      * @param \Ivory\HttpAdapter\Message\InternalRequestInterface|null $request     The request.
      * @param \Ivory\HttpAdapter\Message\ResponseInterface|null        $response    The response.
      *
-     * @return \Ivory\HttpAdapter\Event\PostSendEvent The post send event.
+     * @return \Ivory\HttpAdapter\Event\RequestSentEvent The request send event.
      */
-    private function createPostSendEvent(
+    private function createRequestSentEvent(
         HttpAdapterInterface $httpAdapter = null,
         InternalRequestInterface $request = null,
         ResponseInterface $response = null
     ) {
-        return new PostSendEvent(
+        return new RequestSentEvent(
             $httpAdapter ?: $this->createHttpAdapterMock(),
             $request ?: $this->createRequestMock(),
             $response ?: $this->createResponseMock()
@@ -431,60 +431,60 @@ class IvoryHttpAdapterDataCollectorTest extends \PHPUnit_Framework_TestCase
     }
 
     /**
-     * Creates an exception event.
+     * Creates a request errored event.
      *
      * @param \Ivory\HttpAdapter\HttpAdapterInterface|null $httpAdapter The http adapter.
      * @param \Ivory\HttpAdapter\HttpAdapterException|null $exception   The exception.
      *
-     * @return \Ivory\HttpAdapter\Event\ExceptionEvent The exception event.
+     * @return \Ivory\HttpAdapter\Event\RequestErroredEvent The request errored event.
      */
-    private function createExceptionEvent(
+    private function createRequestErroredEvent(
         HttpAdapterInterface $httpAdapter = null,
         HttpAdapterException $exception = null
     ) {
-        return new ExceptionEvent(
+        return new RequestErroredEvent(
             $httpAdapter ?: $this->createHttpAdapterMock(),
             $exception ?: $this->createExceptionMock()
         );
     }
 
     /**
-     * Creates a multi pre send event.
+     * Creates a multi request created event.
      *
      * @param \Ivory\HttpAdapter\HttpAdapterInterface|null $httpAdapter The http adapter.
      * @param array                                        $requests    The requests.
      *
-     * @return \Ivory\HttpAdapter\Event\MultiPreSendEvent The multi pre send event.
+     * @return \Ivory\HttpAdapter\Event\MultiRequestCreatedEvent The multi request created event.
      */
-    private function createMultiPreSendEvent(HttpAdapterInterface $httpAdapter = null, array $requests = [])
+    private function createMultiRequestCreatedEvent(HttpAdapterInterface $httpAdapter = null, array $requests = [])
     {
-        return new MultiPreSendEvent($httpAdapter ?: $this->createHttpAdapterMock(), $requests);
+        return new MultiRequestCreatedEvent($httpAdapter ?: $this->createHttpAdapterMock(), $requests);
     }
 
     /**
-     * Creates a multi post send event.
+     * Creates a multi request sent event.
      *
      * @param \Ivory\HttpAdapter\HttpAdapterInterface|null $httpAdapter The http adapter.
      * @param array                                        $responses   The responses.
      *
-     * @return \Ivory\HttpAdapter\Event\MultiPostSendEvent The multi post send event.
+     * @return \Ivory\HttpAdapter\Event\MultiRequestSentEvent The multi request sent event.
      */
-    private function createMultiPostSendEvent(HttpAdapterInterface $httpAdapter = null, array $responses = [])
+    private function createMultiRequestSentEvent(HttpAdapterInterface $httpAdapter = null, array $responses = [])
     {
-        return new MultiPostSendEvent($httpAdapter ?: $this->createHttpAdapterMock(), $responses);
+        return new MultiRequestSentEvent($httpAdapter ?: $this->createHttpAdapterMock(), $responses);
     }
 
     /**
-     * Creates a multi exception event.
+     * Creates a multi request errored event.
      *
      * @param \Ivory\HttpAdapter\HttpAdapterInterface|null $httpAdapter The http adapter.
      * @param array                                        $exceptions  The exceptions.
      *
-     * @return \Ivory\HttpAdapter\Event\MultiExceptionEvent The multi exception event.
+     * @return \Ivory\HttpAdapter\Event\MultiRequestErroredEvent The multi request errored event.
      */
-    private function createMultiExceptionEvent(HttpAdapterInterface $httpAdapter = null, array $exceptions = [])
+    private function createMultiRequestErroredEvent(HttpAdapterInterface $httpAdapter = null, array $exceptions = [])
     {
-        return new MultiExceptionEvent($httpAdapter ?: $this->createHttpAdapterMock(), $exceptions);
+        return new MultiRequestErroredEvent($httpAdapter ?: $this->createHttpAdapterMock(), $exceptions);
     }
 
     /**

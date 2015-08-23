@@ -12,7 +12,7 @@ services:
         tags:
             -
                 name: ivory.http_adapter.listener
-                event: ivory.http_adapter.post_send
-                method: onPostSend
+                event: ivory.http_adapter.request_sent
+                method: onRequestSent
                 priority: 10
                 adapter: local
