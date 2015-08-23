@@ -1,5 +1,9 @@
 # CHANGELOG
 
+### 0.7.0 (????-??-??)
+
+ * ad75327 - Update according to egeloen/http-adapter 0.7
+
 ### 0.6.0 (2015-08-23)
 
  * ef21881 - Update accoding to egeloen/http-adapter changes
