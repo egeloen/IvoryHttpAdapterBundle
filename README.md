@@ -11,7 +11,7 @@
 [![License](https://poser.pugx.org/egeloen/http-adapter-bundle/license.svg)](https://packagist.org/packages/egeloen/http-adapter-bundle)
 
 The bundle integrates the Ivory http adapter [library](https://github.com/egeloen/ivory-http-adapter) into Symfony2.
-Basically, this library allows to issue HTTP requests with PHP 5.3+ and so, this bundle exposes a configuration able
+Basically, this library allows to issue HTTP requests with PHP 5.4.8+ and so, this bundle exposes a configuration able
 to create as many adapters you want with global or local configurations for all of them.
 
 ## Documentation

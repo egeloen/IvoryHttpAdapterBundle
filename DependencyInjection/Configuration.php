@@ -32,13 +32,7 @@ class Configuration implements ConfigurationInterface
             ->beforeNormalization()
                 ->always(function ($config) {
                     if (empty($config['adapters'])) {
-                        $config['adapters'] = array(
-                            'default' => array(
-                                'type'        => 'socket',
-                                'configs'     => array(),
-                                'subscribers' => array(),
-                            ),
-                        );
+                        $config['adapters'] = array('default' => array('type' => 'socket'));
                     }
 
                     if (!isset($config['default'])) {
@@ -104,7 +98,7 @@ class Configuration implements ConfigurationInterface
     private function createSubscribersNode()
     {
         return $this->createNode('subscribers')
-            ->addDefaultsIfNotSet()
+            ->canBeEnabled()
             ->children()
                 ->append($this->createBasicAuthSubscriberNode())
                 ->append($this->createRedirectSubscriberNode())

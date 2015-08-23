@@ -65,7 +65,7 @@ class IvoryHttpAdapterExtension extends ConfigurableExtension
     private function loadAdapters(array $config, ContainerBuilder $container, LoaderInterface $loader)
     {
         foreach ($config['adapters'] as $name => $adapter) {
-            $this->loadAdapter($name, $adapter, $config['configs'], $container);
+            $this->loadAdapter($name, $adapter, $config['configs'], $config['subscribers'], $container);
             $this->loadSubscribers($name, $adapter, $config['subscribers'], $container, $loader);
         }
 
@@ -76,40 +76,56 @@ class IvoryHttpAdapterExtension extends ConfigurableExtension
     /**
      * Loads an adapter.
      *
-     * @param string                                                  $name      The name.
-     * @param array                                                   $adapter   The adapter.
-     * @param array                                                   $configs   The global configuration.
-     * @param \Symfony\Component\DependencyInjection\ContainerBuilder $container The container.
+     * @param string                                                  $name        The name.
+     * @param array                                                   $adapter     The adapter.
+     * @param array                                                   $configs     The global configuration.
+     * @param array                                                   $subscribers The global subscribers.
+     * @param \Symfony\Component\DependencyInjection\ContainerBuilder $container   The container.
      */
-    private function loadAdapter($name, array $adapter, array $configs, ContainerBuilder $container)
+    private function loadAdapter($name, array $adapter, array $configs, array $subscribers, ContainerBuilder $container)
     {
-        $httpAdapter = self::createServiceName($name);
-        $configuration = $httpAdapter.'.configuration';
-        $eventDispatcher = $httpAdapter.'.event_dispatcher';
+        $httpAdapterName = self::createServiceName($name);
+        $httpAdapter = $httpAdapterName.'.adapter';
+        $configuration = $httpAdapterName.'.configuration';
 
-        $container->setDefinition(
-            $eventDispatcher,
-            new DefinitionDecorator(self::createServiceName('event_dispatcher'))
-        );
+        $container->setDefinition($configuration, $this->createConfigurationDefinition($adapter, $configs));
+        $container->setDefinition($httpAdapter, $this->createAdapterDefinition($adapter, $configuration));
 
-        $container->setDefinition($configuration,
-            $this->createConfigurationDefinition($adapter, $configs, $eventDispatcher)
-        );
+        if ($adapter['subscribers']['enabled'] || $subscribers['enabled'] || $container->getParameter('kernel.debug')) {
+            $eventDispatcherHttpAdapter = $httpAdapterName.'.wrapper.event_dispatcher';
+            $eventDispatcher = $httpAdapterName.'.event_dispatcher';
 
-        if ($container->getParameter('kernel.debug')) {
-            $wrappedHttpAdapter = $httpAdapter.'.wrapped';
-
-            $container->setDefinition($wrappedHttpAdapter, $this->createAdapterDefinition($adapter, $configuration));
             $container->setDefinition(
-                $httpAdapter,
+                $eventDispatcher,
+                new DefinitionDecorator(self::createServiceName('event_dispatcher'))
+            );
+
+            $container->setDefinition(
+                $eventDispatcherHttpAdapter,
                 new Definition(
-                    'Ivory\HttpAdapter\StopwatchHttpAdapter',
-                    array(new Reference($wrappedHttpAdapter), new Reference('debug.stopwatch'))
+                    'Ivory\HttpAdapter\EventDispatcherHttpAdapter',
+                    [new Reference($httpAdapter), new Reference($eventDispatcher)]
                 )
             );
-        } else {
-            $container->setDefinition($httpAdapter, $this->createAdapterDefinition($adapter, $configuration));
+
+            $httpAdapter = $eventDispatcherHttpAdapter;
         }
+
+        if ($container->getParameter('kernel.debug')) {
+            $stopwatchHttpAdapter = $httpAdapterName.'.wrapper.stopwatch';
+
+            $container->setDefinition(
+                $stopwatchHttpAdapter,
+                new Definition(
+                    'Ivory\HttpAdapter\StopwatchHttpAdapter',
+                    [new Reference($httpAdapter), new Reference('debug.stopwatch')]
+                )
+            );
+
+            $httpAdapter = $stopwatchHttpAdapter;
+        }
+
+        $container->setAlias($httpAdapterName, $httpAdapter);
     }
 
     /**
@@ -132,11 +148,14 @@ class IvoryHttpAdapterExtension extends ConfigurableExtension
             $subscribers['debug'] = null;
         }
 
+        unset($adapter['subscribers']['enabled']);
+        unset($subscribers['enabled']);
+
         foreach (array_merge($subscribers, $adapter['subscribers']) as $subscriberName => $subscriber) {
             $loader->load('subscribers/'.$subscriberName.'.xml');
 
             $container->setDefinition(
-                self::createServiceName($name.'.'.$subscriberName),
+                self::createServiceName($name.'.subscriber.'.$subscriberName),
                 $this->createSubscriberDefinition($name, $subscriberName, $subscriber, $container)
             );
         }
@@ -162,16 +181,14 @@ class IvoryHttpAdapterExtension extends ConfigurableExtension
     /**
      * Creates a configuration definition.
      *
-     * @param array  $adapter         The adapter.
-     * @param array  $configs         The global configuration.
-     * @param string $eventDispatcher The event dispatcher service name.
+     * @param array  $adapter The adapter.
+     * @param array  $configs The global configuration.
      *
      * @return \Symfony\Component\DependencyInjection\DefinitionDecorator The configuration definition.
      */
-    private function createConfigurationDefinition(array $adapter, array $configs, $eventDispatcher)
+    private function createConfigurationDefinition(array $adapter, array $configs)
     {
         $definition = new DefinitionDecorator(self::createServiceName('configuration'));
-        $definition->addArgument(new Reference($eventDispatcher));
 
         foreach (array_merge($configs, $adapter['configs']) as $property => $value) {
             $definition->addMethodCall($this->getMethod($property), array($value));

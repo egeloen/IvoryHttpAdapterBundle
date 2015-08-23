@@ -69,8 +69,9 @@ ivory_http_adapter:
 ## Subscribers
 
 For each http adapters, you can register subscribers globally (for all http adapters) or locally (for a specific http
-adapter only). By default, there is no subscribers registered. The subscriber documentation is available
-[here](https://github.com/egeloen/ivory-http-adapter/blob/master/doc/events.md#available-subscribers).
+adapter only). By default, there is no subscribers registered and futhermore, the event dispatcher http adapter wrapper
+is not used, it is when there are subscribers registered or if it is explicitly enabled. The subscriber documentation is
+available [here](https://github.com/egeloen/ivory-http-adapter/blob/master/doc/events.md#available-subscribers).
 
 ### Global subscribers
 
@@ -87,6 +88,13 @@ ivory_http_adapter:
         retry: ~
         status_code: ~
         stopwatch: ~
+```
+
+Or, you can explicitly enable it:
+
+``` yaml
+ivory_http_adapter:
+    subscribers: true
 ```
 
 ### Local subscribers
@@ -107,6 +115,16 @@ ivory_http_adapter:
                 retry: ~
                 status_code: ~
                 stopwatch: ~
+```
+
+Or, you can explicitly enable it:
+
+``` yaml
+ivory_http_adapter:
+    adapters:
+        my_adapter:
+            type: socket
+            subscribers: true
 ```
 
 ### Basic auth subscriber

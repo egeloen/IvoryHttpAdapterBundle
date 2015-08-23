@@ -4,6 +4,7 @@ ivory_http_adapter:
             type: socket
         local:
             type: socket
+            subscribers: true
 
 services:
     my_subscriber:

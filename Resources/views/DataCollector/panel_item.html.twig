@@ -26,7 +26,6 @@
                             <th>Adapter</th>
                             <th>Protocol Version</th>
                             <th>Headers</th>
-                            <th>Raw Datas</th>
                             <th>Datas</th>
                             <th>Files</th>
                             <th>Parameters</th>
@@ -34,13 +33,12 @@
                     </thead>
                     <tbody>
                         <tr>
-                            <td>{{ item.request.url }}</td>
+                            <td>{{ item.request.uri }}</td>
                             <td>{{ item.request.method }}</td>
                             <td>{{ (item.request.parameters.time * 1000) | round }} ms</td>
                             <td>{{ item.adapter }}</td>
                             <td>{{ item.request.protocol_version }}</td>
                             <td>{{ helper.format_value(item.request.headers) }}</td>
-                            <td>{{ helper.format_value(item.request.raw_datas) }}</td>
                             <td>{{ helper.format_value(item.request.datas) }}</td>
                             <td>{{ helper.format_value(item.request.files) }}</td>
                             <td>{{ helper.format_value(item.request.parameters) }}</td>

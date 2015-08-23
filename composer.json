@@ -11,9 +11,9 @@
         }
     ],
     "require": {
-        "php": ">=5.3.3",
-        "egeloen/http-adapter": "^0.6",
-        "symfony/framework-bundle": "^2.1"
+        "php": ">=5.4.8",
+        "egeloen/http-adapter": "^0.7",
+        "symfony/framework-bundle": "^2.2"
     },
     "require-dev": {
         "cakephp/cakephp": "^2.0",
@@ -37,7 +37,7 @@
     },
     "extra": {
         "branch-alias": {
-            "dev-master": "0.6-dev"
+            "dev-master": "0.7-dev"
         }
     }
 }

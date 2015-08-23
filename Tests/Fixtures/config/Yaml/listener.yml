@@ -1,3 +1,6 @@
+ivory_http_adapter:
+    subscribers: true
+
 services:
     my_listener:
         class: Ivory\HttpAdapter\Event\Subscriber\StatusCodeSubscriber

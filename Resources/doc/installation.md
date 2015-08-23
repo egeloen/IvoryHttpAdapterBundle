@@ -3,11 +3,7 @@
 Require the bundle in your composer.json file:
 
 ```
-{
-    "require": {
-        "egeloen/http-adapter-bundle": "~0.1",
-    }
-}
+$ composer require egeloen/http-adapter-bundle --no-update
 ```
 
 Register the bundle:
@@ -27,5 +23,5 @@ public function registerBundles()
 Install the bundle:
 
 ```
-$ composer update
+$ composer update egeloen/http-adapter-bundle
 ```

@@ -93,7 +93,7 @@ class IvoryHttpAdapterDataCollector
      */
     public function onPreSend(PreSendEvent $event)
     {
-        $this->getTimer()->start($event->getRequest());
+        $event->setRequest($this->getTimer()->start($event->getRequest()));
     }
 
     /**
@@ -103,7 +103,11 @@ class IvoryHttpAdapterDataCollector
      */
     public function onPostSend(PostSendEvent $event)
     {
-        $this->collectResponse($event->getHttpAdapter(), $event->getRequest(), $event->getResponse());
+        $event->setRequest($this->collectResponse(
+            $event->getHttpAdapter(),
+            $event->getRequest(),
+            $event->getResponse()
+        ));
     }
 
     /**
@@ -113,7 +117,7 @@ class IvoryHttpAdapterDataCollector
      */
     public function onException(ExceptionEvent $event)
     {
-        $this->collectException($event->getHttpAdapter(), $event->getException());
+        $event->getException()->setRequest($this->collectException($event->getHttpAdapter(), $event->getException()));
     }
 
     /**
@@ -123,9 +127,13 @@ class IvoryHttpAdapterDataCollector
      */
     public function onMultiPreSend(MultiPreSendEvent $event)
     {
+        $requests = [];
+
         foreach ($event->getRequests() as $request) {
-            $this->getTimer()->start($request);
+            $requests[] = $this->getTimer()->start($request);
         }
+
+        $event->setRequests($requests);
     }
 
     /**
@@ -135,9 +143,16 @@ class IvoryHttpAdapterDataCollector
      */
     public function onMultiPostSend(MultiPostSendEvent $event)
     {
+        $responses = [];
+
         foreach ($event->getResponses() as $response) {
-            $this->collectResponse($event->getHttpAdapter(), $response->getParameter('request'), $response);
+            $responses[] = $response->withParameter(
+                'request',
+                $this->collectResponse($event->getHttpAdapter(), $response->getParameter('request'), $response)
+            );
         }
+
+        $event->setResponses($responses);
     }
 
     /**
@@ -148,7 +163,7 @@ class IvoryHttpAdapterDataCollector
     public function onMultiException(MultiExceptionEvent $event)
     {
         foreach ($event->getExceptions() as $exception) {
-            $this->collectException($event->getHttpAdapter(), $exception);
+            $exception->setRequest($this->collectException($event->getHttpAdapter(), $exception));
         }
     }
 
@@ -205,19 +220,23 @@ class IvoryHttpAdapterDataCollector
      * @param \Ivory\HttpAdapter\HttpAdapterInterface             $httpAdapter The http adapter.
      * @param \Ivory\HttpAdapter\Message\InternalRequestInterface $request     The request.
      * @param \Ivory\HttpAdapter\Message\ResponseInterface        $response    The response.
+     *
+     * @return \Ivory\HttpAdapter\Message\InternalRequestInterface The collected request.
      */
     private function collectResponse(
         HttpAdapterInterface $httpAdapter,
         InternalRequestInterface $request,
         ResponseInterface $response
     ) {
-        $this->getTimer()->stop($request);
+        $request = $this->getTimer()->stop($request);
 
         $this->datas['responses'][] = array(
             'adapter'  => $httpAdapter->getName(),
             'request'  => $this->getFormatter()->formatRequest($request),
             'response' => $this->getFormatter()->formatResponse($response),
         );
+
+        return $request;
     }
 
     /**
@@ -225,18 +244,22 @@ class IvoryHttpAdapterDataCollector
      *
      * @param \Ivory\HttpAdapter\HttpAdapterInterface $httpAdapter The http adapter.
      * @param \Ivory\HttpAdapter\HttpAdapterException $exception   The exception.
+     *
+     * @return \Ivory\HttpAdapter\Message\InternalRequestInterface The collected request.
      */
     private function collectException(HttpAdapterInterface $httpAdapter, HttpAdapterException $exception)
     {
-        $this->getTimer()->stop($exception->getRequest());
+        $request = $this->getTimer()->stop($exception->getRequest());
 
         $this->datas['exceptions'][] = array(
             'adapter'   => $httpAdapter->getName(),
             'exception' => $this->getFormatter()->formatException($exception),
-            'request'   => $this->getFormatter()->formatRequest($exception->getRequest()),
+            'request'   => $this->getFormatter()->formatRequest($request),
             'response'  => $exception->hasResponse()
                 ? $this->getFormatter()->formatResponse($exception->getResponse())
                 : null,
         );
+
+        return $request;
     }
 }

@@ -37,7 +37,7 @@
                             {% set items = collector.responses | merge(collector.exceptions) %}
                             {% for item in items %}
                                 <tr{% if item.exception is defined %} class="ivory-http-adapter-toolbar-error"{% endif %}>
-                                    <td class="ivory-http-adapter-toolbar-url">{{ item.request.url }}</td>
+                                    <td class="ivory-http-adapter-toolbar-uri">{{ item.request.uri }}</td>
                                     <td>{{ item.request.method }}</td>
                                     <td>{{ (item.request.parameters.time * 1000) | round }} ms</td>
                                 </tr>

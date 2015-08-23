@@ -1,9 +1,14 @@
 # UPGRADE
 
+### 0.6 to 0.7
+
+ * The Ivory http adapter library has BC breaks (See [here](https://github.com/egeloen/ivory-http-adapter/blob/master/UPGRADE.md#06-to-07)).
+
 ### 0.5 to 0.6
 
  * All protected properties and methods have been updated to private except for entry points. This is mostly motivated
    for enforcing the encapsulation and easing backward compatibility. The same goes for the library.
+ * The Ivory http adapter library has BC breaks (See [here](https://github.com/egeloen/ivory-http-adapter/blob/master/UPGRADE.md#05-to-06)).
 
 ### 0.4 to 0.5
 
