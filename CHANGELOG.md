@@ -1,6 +1,6 @@
 # CHANGELOG
 
-### 0.7.0 (????-??-??)
+### 0.7.0 (2015-08-23)
 
  * ad75327 - Update according to egeloen/http-adapter 0.7
 
