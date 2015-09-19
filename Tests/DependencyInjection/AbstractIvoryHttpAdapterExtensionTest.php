@@ -223,6 +223,81 @@ abstract class AbstractIvoryHttpAdapterExtensionTest extends \PHPUnit_Framework_
         $this->assertSame('domain.com', $basicAuth->getMatcher());
     }
 
+    public function testGlobalCacheSubscriber()
+    {
+        $this->container->set(
+            'ivory.cache.adapter',
+            $cacheAdapter = $this->getMock('Ivory\HttpAdapter\Event\Cache\Adapter\CacheAdapterInterface')
+        );
+
+        $this->loadConfiguration($this->container, 'global_cache');
+        $this->container->compile();
+
+        $listener = $this->assertListener(
+            $this->container->get('ivory.http_adapter.default.event_dispatcher'),
+            Events::REQUEST_CREATED,
+            'Ivory\HttpAdapter\Event\Subscriber\CacheSubscriber'
+        );
+
+        $this->assertSame(
+            $cache = $this->container->get('ivory.http_adapter.default.cache.model'),
+            $listener->getCache()
+        );
+
+        $this->assertSame($cacheAdapter, $listener->getCache()->getAdapter());
+        $this->assertTrue($listener->getCache()->cacheException());
+    }
+
+    public function testGlobalCacheSubscriberWithoutException()
+    {
+        $this->container->set(
+            'ivory.cache.adapter',
+            $cacheAdapter = $this->getMock('Ivory\HttpAdapter\Event\Cache\Adapter\CacheAdapterInterface')
+        );
+
+        $this->loadConfiguration($this->container, 'global_cache_without_exception');
+        $this->container->compile();
+
+        $listener = $this->assertListener(
+            $this->container->get('ivory.http_adapter.default.event_dispatcher'),
+            Events::REQUEST_CREATED,
+            'Ivory\HttpAdapter\Event\Subscriber\CacheSubscriber'
+        );
+
+        $this->assertSame(
+            $cache = $this->container->get('ivory.http_adapter.default.cache.model'),
+            $listener->getCache()
+        );
+
+        $this->assertSame($cacheAdapter, $listener->getCache()->getAdapter());
+        $this->assertFalse($listener->getCache()->cacheException());
+    }
+
+    public function testGlobalCacheSubscriberWithLifetime()
+    {
+        $this->container->set(
+            'ivory.cache.adapter',
+            $cacheAdapter = $this->getMock('Ivory\HttpAdapter\Event\Cache\Adapter\CacheAdapterInterface')
+        );
+
+        $this->loadConfiguration($this->container, 'global_cache_with_lifetime');
+        $this->container->compile();
+
+        $listener = $this->assertListener(
+            $this->container->get('ivory.http_adapter.default.event_dispatcher'),
+            Events::REQUEST_CREATED,
+            'Ivory\HttpAdapter\Event\Subscriber\CacheSubscriber'
+        );
+
+        $this->assertSame(
+            $cache = $this->container->get('ivory.http_adapter.default.cache.model'),
+            $listener->getCache()
+        );
+
+        $this->assertSame($cacheAdapter, $listener->getCache()->getAdapter());
+        $this->assertSame(100, $listener->getCache()->getLifetime());
+    }
+
     public function testGlobalCookieSubscriber()
     {
         $this->container->setParameter('kernel.cache_dir', sys_get_temp_dir());
@@ -602,6 +677,81 @@ abstract class AbstractIvoryHttpAdapterExtensionTest extends \PHPUnit_Framework_
             'Ivory\HttpAdapter\SocketHttpAdapter',
             $this->container->get('ivory.http_adapter.global')
         );
+    }
+
+    public function testLocalCacheSubscriber()
+    {
+        $this->container->set(
+            'ivory.cache.adapter',
+            $cacheAdapter = $this->getMock('Ivory\HttpAdapter\Event\Cache\Adapter\CacheAdapterInterface')
+        );
+
+        $this->loadConfiguration($this->container, 'local_cache');
+        $this->container->compile();
+
+        $listener = $this->assertListener(
+            $this->container->get('ivory.http_adapter.local.event_dispatcher'),
+            Events::REQUEST_CREATED,
+            'Ivory\HttpAdapter\Event\Subscriber\CacheSubscriber'
+        );
+
+        $this->assertSame(
+            $cache = $this->container->get('ivory.http_adapter.local.cache.model'),
+            $listener->getCache()
+        );
+
+        $this->assertSame($cacheAdapter, $listener->getCache()->getAdapter());
+        $this->assertTrue($listener->getCache()->cacheException());
+    }
+
+    public function testLocalCacheSubscriberWithoutException()
+    {
+        $this->container->set(
+            'ivory.cache.adapter',
+            $cacheAdapter = $this->getMock('Ivory\HttpAdapter\Event\Cache\Adapter\CacheAdapterInterface')
+        );
+
+        $this->loadConfiguration($this->container, 'local_cache_without_exception');
+        $this->container->compile();
+
+        $listener = $this->assertListener(
+            $this->container->get('ivory.http_adapter.local.event_dispatcher'),
+            Events::REQUEST_CREATED,
+            'Ivory\HttpAdapter\Event\Subscriber\CacheSubscriber'
+        );
+
+        $this->assertSame(
+            $cache = $this->container->get('ivory.http_adapter.local.cache.model'),
+            $listener->getCache()
+        );
+
+        $this->assertSame($cacheAdapter, $listener->getCache()->getAdapter());
+        $this->assertFalse($listener->getCache()->cacheException());
+    }
+
+    public function testLocalCacheSubscriberWithLifetime()
+    {
+        $this->container->set(
+            'ivory.cache.adapter',
+            $cacheAdapter = $this->getMock('Ivory\HttpAdapter\Event\Cache\Adapter\CacheAdapterInterface')
+        );
+
+        $this->loadConfiguration($this->container, 'local_cache_with_lifetime');
+        $this->container->compile();
+
+        $listener = $this->assertListener(
+            $this->container->get('ivory.http_adapter.local.event_dispatcher'),
+            Events::REQUEST_CREATED,
+            'Ivory\HttpAdapter\Event\Subscriber\CacheSubscriber'
+        );
+
+        $this->assertSame(
+            $cache = $this->container->get('ivory.http_adapter.local.cache.model'),
+            $listener->getCache()
+        );
+
+        $this->assertSame($cacheAdapter, $listener->getCache()->getAdapter());
+        $this->assertSame(100, $listener->getCache()->getLifetime());
     }
 
     public function testLocalCookieSubscriber()

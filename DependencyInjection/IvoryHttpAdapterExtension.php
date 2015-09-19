@@ -224,6 +224,10 @@ class IvoryHttpAdapterExtension extends ConfigurableExtension
                 $this->configureBasicAuthSubscriberDefinition($subscriber, $configuration, $adapterName, $container);
                 break;
 
+            case 'cache':
+                $this->configureCacheSubscriberDefinition($subscriber, $configuration, $adapterName, $container);
+                break;
+
             case 'cookie':
                 $this->configureCookieSubscriberDefinition($subscriber, $configuration);
                 break;
@@ -274,6 +278,27 @@ class IvoryHttpAdapterExtension extends ConfigurableExtension
         }
 
         $container->setDefinition($service = self::createServiceName($adapterName.'.basic_auth.model'), $model);
+        $subscriber->setArguments(array(new Reference($service)));
+    }
+
+    /**
+     * Configures the cache subscriber definition.
+     *
+     * @param \Symfony\Component\DependencyInjection\Definition       $subscriber  The subscriber.
+     * @param array                                                   $cache       The cache.
+     * @param string                                                  $adapterName The adapter name.
+     * @param \Symfony\Component\DependencyInjection\ContainerBuilder $container   The container.
+     */
+    private function configureCacheSubscriberDefinition(
+        Definition $subscriber,
+        array $cache,
+        $adapterName,
+        ContainerBuilder $container
+    ) {
+        $model = new DefinitionDecorator(self::createServiceName('subscriber.cache.model'));
+        $model->setArguments(array(new Reference($cache['adapter']), null, $cache['lifetime'], $cache['exception']));
+
+        $container->setDefinition($service = self::createServiceName($adapterName.'.cache.model'), $model);
         $subscriber->setArguments(array(new Reference($service)));
     }
 
