@@ -1,5 +1,8 @@
 # README
 
+Before starting, be aware **this package is deprecated in favor of [php-http](https://github.com/php-http)**. 
+That means bugfixes would be accepted but new features will not (except maybe for already opened PRs).
+
 [![Build Status](https://secure.travis-ci.org/egeloen/IvoryHttpAdapterBundle.png?branch=master)](http://travis-ci.org/egeloen/IvoryHttpAdapterBundle)
 [![Coverage Status](https://coveralls.io/repos/egeloen/IvoryHttpAdapterBundle/badge.png?branch=master)](https://coveralls.io/r/egeloen/IvoryHttpAdapterBundle?branch=master)
 [![Scrutinizer Code Quality](https://scrutinizer-ci.com/g/egeloen/IvoryHttpAdapterBundle/badges/quality-score.png?b=master)](https://scrutinizer-ci.com/g/egeloen/IvoryHttpAdapterBundle/?branch=master)
