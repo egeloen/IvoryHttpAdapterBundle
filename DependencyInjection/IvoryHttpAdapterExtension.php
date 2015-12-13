@@ -20,6 +20,7 @@ use Symfony\Component\DependencyInjection\DefinitionDecorator;
 use Symfony\Component\DependencyInjection\Loader\XmlFileLoader;
 use Symfony\Component\DependencyInjection\Reference;
 use Symfony\Component\HttpKernel\DependencyInjection\ConfigurableExtension;
+use Symfony\Component\HttpKernel\Kernel;
 
 /**
  * Ivory http adapter extension.
@@ -47,6 +48,16 @@ class IvoryHttpAdapterExtension extends ConfigurableExtension
     {
         $loader = new XmlFileLoader($container, new FileLocator(__DIR__.'/../Resources/config'));
         $loader->load('adapters.xml');
+
+        $definition = $container->getDefinition('ivory.http_adapter.abstract');
+
+        if (Kernel::VERSION_ID < 20600) {
+            $definition
+                ->setFactoryClass('Ivory\HttpAdapter\HttpAdapterFactory')
+                ->setFactoryMethod('create');
+        } else {
+            $definition->setFactory(['Ivory\HttpAdapter\HttpAdapterFactory', 'create']);
+        }
 
         if ($container->getParameter('kernel.debug')) {
             $loader->load('data_collector.xml');

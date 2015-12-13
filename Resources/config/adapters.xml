@@ -23,12 +23,6 @@
             <argument type="service" id="ivory.http_adapter.message.factory" />
         </service>
 
-        <service
-            id="ivory.http_adapter.abstract"
-            class="Ivory\HttpAdapter\AbstractHttpAdapter"
-            factory-class="Ivory\HttpAdapter\HttpAdapterFactory"
-            factory-method="create"
-            abstract="true"
-        />
+        <service id="ivory.http_adapter.abstract" class="Ivory\HttpAdapter\AbstractHttpAdapter" abstract="true" />
     </services>
 </container>
