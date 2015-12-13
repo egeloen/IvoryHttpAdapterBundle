@@ -32,7 +32,7 @@ class Configuration implements ConfigurationInterface
             ->beforeNormalization()
                 ->always(function ($config) {
                     if (empty($config['adapters'])) {
-                        $config['adapters'] = array('default' => array('type' => 'socket'));
+                        $config['adapters'] = ['default' => ['type' => 'socket']];
                     }
 
                     if (!isset($config['default'])) {
@@ -101,6 +101,7 @@ class Configuration implements ConfigurationInterface
             ->canBeEnabled()
             ->children()
                 ->append($this->createBasicAuthSubscriberNode())
+                ->append($this->createCacheSubscriberNode())
                 ->append($this->createRedirectSubscriberNode())
                 ->scalarNode('cookie')->end()
                 ->scalarNode('history')->end()
@@ -127,6 +128,21 @@ class Configuration implements ConfigurationInterface
     }
 
     /**
+     * Creates the cache subscriber node.
+     *
+     * @return \Symfony\Component\Config\Definition\Builder\NodeDefinition The cache subscriber node.
+     */
+    private function createCacheSubscriberNode()
+    {
+        return $this->createNode('cache')
+            ->children()
+                ->scalarNode('adapter')->isRequired()->end()
+                ->integerNode('lifetime')->defaultValue(null)->end()
+                ->booleanNode('exception')->defaultValue(true)->end()
+            ->end();
+    }
+
+    /**
      * Creates the redirect subscriber node.
      *
      * @return \Symfony\Component\Config\Definition\Builder\NodeDefinition The redirect subscriber node.
@@ -146,7 +162,7 @@ class Configuration implements ConfigurationInterface
      *
      * @param string $name The node name.
      *
-     * @return \Symfony\Component\Config\Definition\Builder\NodeDefinition The node.
+     * @return \Symfony\Component\Config\Definition\Builder\NodeDefinition|\Symfony\Component\Config\Definition\Builder\ArrayNodeDefinition The node.
      */
     private function createNode($name)
     {

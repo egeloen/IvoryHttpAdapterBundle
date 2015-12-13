@@ -81,6 +81,8 @@ ivory_http_adapter:
         basic_auth:
             username: egeloen
             password: pass
+        cache:
+            adapter: your.adapter.service
         cookie: ~
         history: ~
         logger: ~
@@ -108,6 +110,8 @@ ivory_http_adapter:
                 basic_auth:
                     username: egeloen
                     password: pass
+                cache:
+                    adapter: your.adapter.service
                 cookie: ~
                 history: ~
                 logger: ~
@@ -138,6 +142,25 @@ basic_auth:
     username: egeloen
     password: pass
     matcher: my-domain.com
+```
+
+### Cache subscriber
+
+The cache subscriber requires you to create a cache adapter service which is an implementation of
+`Ivory\HttpAdapter\Event\Cache\Adapter\CacheAdapterInterface`. When it is created, just configure it:
+
+``` yaml
+# ...
+cache:
+    adapter: your.adapter.service
+```
+
+You can also specify if the exceptions should be cached (enabled by default):
+
+``` yaml
+# ...
+cache:
+    exception: false
 ```
 
 ### Cookie subscriber

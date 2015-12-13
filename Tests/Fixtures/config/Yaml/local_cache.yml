@@ -1,0 +1,9 @@
+ivory_http_adapter:
+    adapters:
+        global:
+            type: socket
+        local:
+            type: socket
+            subscribers:
+                cache:
+                    adapter: ivory.cache.adapter

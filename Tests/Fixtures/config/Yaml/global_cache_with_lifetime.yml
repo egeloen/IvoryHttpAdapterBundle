@@ -1,0 +1,5 @@
+ivory_http_adapter:
+    subscribers:
+        cache:
+            adapter: ivory.cache.adapter
+            lifetime: 100
