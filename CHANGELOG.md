@@ -1,6 +1,6 @@
 # CHANGELOG
 
-### 1.0.0 (????-??-??)
+### 1.0.0 (2015-12-13)
 
  * 28f32df - Make code base compatible with Symfony3
  * 8a98333 - Add caching support
