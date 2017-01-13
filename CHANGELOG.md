@@ -2,6 +2,7 @@
 
 ### 1.0.1 (????-??-??)
 
+ * aa02e9a - [Travis] Add PHP 7.1 to the maxtrix + only build the master branch + PRs
  * 533fbf3 - [Travis] Fix tests
  * bda50e6 - [Travis] Remove dead matrix entry
  * 185e46a - [Scrutinizer] Fix configuration
