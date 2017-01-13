@@ -14,9 +14,9 @@ env:
         - GUZZLE_VERSION=6.*
 
 install:
-    - if [[ "$TRAVIS_PHP_VERSION" != "hhvm" ]] && [[ "$TRAVIS_PHP_VERSION" != "7" ]]; then printf "\n" | pecl install propro; fi
-    - if [[ "$TRAVIS_PHP_VERSION" != "hhvm" ]] && [[ "$TRAVIS_PHP_VERSION" != "7" ]]; then printf "\n" | pecl install raphf; fi
-    - if [[ "$TRAVIS_PHP_VERSION" != "hhvm" ]] && [[ "$TRAVIS_PHP_VERSION" != "7" ]]; then printf "\n" | pecl install pecl_http; fi
+    - if [[ "$TRAVIS_PHP_VERSION" != "hhvm" ]] && [[ "$TRAVIS_PHP_VERSION" != "7.0" ]]; then printf "\n" | pecl install propro-1.0.2; fi
+    - if [[ "$TRAVIS_PHP_VERSION" != "hhvm" ]] && [[ "$TRAVIS_PHP_VERSION" != "7.0" ]]; then printf "\n" | pecl install raphf-1.1.2; fi
+    - if [[ "$TRAVIS_PHP_VERSION" != "hhvm" ]] && [[ "$TRAVIS_PHP_VERSION" != "7.0" ]]; then printf "\n" | pecl install pecl_http-2.5.6; fi
     - composer self-update
     - composer require --no-update symfony/framework-bundle:${SYMFONY_VERSION}
     - if [[ "$SYMFONY_VERSION" = 3\.* ]]; then composer remove --dev --no-update guzzle/guzzle; fi
