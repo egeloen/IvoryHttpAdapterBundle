@@ -1,5 +1,16 @@
 # CHANGELOG
 
+### 1.0.1 (????-??-??)
+
+ * fbf5dad - Update tests
+ * b0ae737 - Update CONTRIBUTIING
+ * a76597d - [Travis] Update configuration
+ * ca83e96 - [Scrutinizer] Update configuration
+ * e031fd2 - [License] Happy new year
+ * 15d5b9c - [Composer] Update deps
+ * 90c51dc - Remove coveralls
+ * aa1ecc9 - [Composer] Fix branch alias
+ 
 ### 1.0.0 (2015-12-13)
 
  * 28f32df - Make code base compatible with Symfony3
