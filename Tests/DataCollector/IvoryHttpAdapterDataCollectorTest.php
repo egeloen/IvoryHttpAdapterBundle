@@ -22,13 +22,14 @@ use Ivory\HttpAdapter\HttpAdapterException;
 use Ivory\HttpAdapter\Message\InternalRequestInterface;
 use Ivory\HttpAdapter\Message\ResponseInterface;
 use Ivory\HttpAdapterBundle\DataCollector\IvoryHttpAdapterDataCollector;
+use Ivory\HttpAdapterBundle\Tests\AbstractTestCase;
 
 /**
  * Ivory http adapter data collector test.
  *
  * @author GeLo <geloen.eric@gmail.com>
  */
-class IvoryHttpAdapterDataCollectorTest extends \PHPUnit_Framework_TestCase
+class IvoryHttpAdapterDataCollectorTest extends AbstractTestCase
 {
     /** @var \Ivory\HttpAdapterBundle\DataCollector\IvoryHttpAdapterDataCollector */
     private $dataCollector;
@@ -70,8 +71,8 @@ class IvoryHttpAdapterDataCollectorTest extends \PHPUnit_Framework_TestCase
     public function testCollect()
     {
         $this->dataCollector->collect(
-            $this->getMock('Symfony\Component\HttpFoundation\Request'),
-            $this->getMock('Symfony\Component\HttpFoundation\Response')
+            $this->createMock('Symfony\Component\HttpFoundation\Request'),
+            $this->createMock('Symfony\Component\HttpFoundation\Response')
         );
     }
 
@@ -492,7 +493,7 @@ class IvoryHttpAdapterDataCollectorTest extends \PHPUnit_Framework_TestCase
      */
     private function createFormatterMock()
     {
-        return $this->getMock('Ivory\HttpAdapter\Event\Formatter\FormatterInterface');
+        return $this->createMock('Ivory\HttpAdapter\Event\Formatter\FormatterInterface');
     }
 
     /**
@@ -500,7 +501,7 @@ class IvoryHttpAdapterDataCollectorTest extends \PHPUnit_Framework_TestCase
      */
     private function createTimerMock()
     {
-        return $this->getMock('Ivory\HttpAdapter\Event\Timer\TimerInterface');
+        return $this->createMock('Ivory\HttpAdapter\Event\Timer\TimerInterface');
     }
 
     /**
@@ -510,7 +511,7 @@ class IvoryHttpAdapterDataCollectorTest extends \PHPUnit_Framework_TestCase
      */
     private function createHttpAdapterMock()
     {
-        $httpAdapter = $this->getMock('Ivory\HttpAdapter\HttpAdapterInterface');
+        $httpAdapter = $this->createMock('Ivory\HttpAdapter\HttpAdapterInterface');
         $httpAdapter
             ->expects($this->any())
             ->method('getConfiguration')
@@ -531,7 +532,7 @@ class IvoryHttpAdapterDataCollectorTest extends \PHPUnit_Framework_TestCase
      */
     private function createConfigurationMock()
     {
-        return $this->getMock('Ivory\HttpAdapter\ConfigurationInterface');
+        return $this->createMock('Ivory\HttpAdapter\ConfigurationInterface');
     }
 
     /**
@@ -541,7 +542,7 @@ class IvoryHttpAdapterDataCollectorTest extends \PHPUnit_Framework_TestCase
      */
     private function createRequestMock()
     {
-        $request = $this->getMock('Ivory\HttpAdapter\Message\InternalRequestInterface');
+        $request = $this->createMock('Ivory\HttpAdapter\Message\InternalRequestInterface');
         $request
             ->expects($this->any())
             ->method('getProtocolVersion')
@@ -549,7 +550,7 @@ class IvoryHttpAdapterDataCollectorTest extends \PHPUnit_Framework_TestCase
 
         $request
             ->expects($this->any())
-            ->method('getUrl')
+            ->method('getUri')
             ->will($this->returnValue('http://egeloen.fr'));
 
         $request
@@ -564,7 +565,7 @@ class IvoryHttpAdapterDataCollectorTest extends \PHPUnit_Framework_TestCase
 
         $request
             ->expects($this->any())
-            ->method('getRawDatas')
+            ->method('getBody')
             ->will($this->returnValue('foo=bar'));
 
         $request
@@ -594,7 +595,7 @@ class IvoryHttpAdapterDataCollectorTest extends \PHPUnit_Framework_TestCase
      */
     private function createResponseMock(InternalRequestInterface $request = null)
     {
-        $response = $this->getMock('Ivory\HttpAdapter\Message\ResponseInterface');
+        $response = $this->createMock('Ivory\HttpAdapter\Message\ResponseInterface');
         $response
             ->expects($this->any())
             ->method('getProtocolVersion')
@@ -652,7 +653,7 @@ class IvoryHttpAdapterDataCollectorTest extends \PHPUnit_Framework_TestCase
      */
     private function createExceptionMock(InternalRequestInterface $request = null, ResponseInterface $response = null)
     {
-        $exception = $this->getMock('Ivory\HttpAdapter\HttpAdapterException');
+        $exception = $this->createMock('Ivory\HttpAdapter\HttpAdapterException');
         $exception
             ->expects($this->any())
             ->method('getCode')

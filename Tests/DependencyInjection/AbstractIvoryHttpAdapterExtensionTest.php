@@ -14,6 +14,7 @@ namespace Ivory\HttpAdapterBundle\Tests\DependencyInjection;
 use Ivory\HttpAdapter\Event\Events;
 use Ivory\HttpAdapterBundle\DependencyInjection\Compiler\RegisterListenerCompilerPass;
 use Ivory\HttpAdapterBundle\DependencyInjection\IvoryHttpAdapterExtension;
+use Ivory\HttpAdapterBundle\Tests\AbstractTestCase;
 use Symfony\Component\DependencyInjection\ContainerBuilder;
 
 /**
@@ -21,7 +22,7 @@ use Symfony\Component\DependencyInjection\ContainerBuilder;
  *
  * @author GeLo <geloen.eric@gmail.com>
  */
-abstract class AbstractIvoryHttpAdapterExtensionTest extends \PHPUnit_Framework_TestCase
+abstract class AbstractIvoryHttpAdapterExtensionTest extends AbstractTestCase
 {
     /** @var \Symfony\Component\DependencyInjection\ContainerBuilder */
     private $container;
@@ -73,7 +74,7 @@ abstract class AbstractIvoryHttpAdapterExtensionTest extends \PHPUnit_Framework_
     public function testDebugHttpAdapter()
     {
         $this->container->setParameter('kernel.debug', true);
-        $this->container->set('debug.stopwatch', $this->getMock('Symfony\Component\Stopwatch\Stopwatch'));
+        $this->container->set('debug.stopwatch', $this->createMock('Symfony\Component\Stopwatch\Stopwatch'));
         $this->container->compile();
 
         $this->assertInstanceOf(
@@ -227,7 +228,7 @@ abstract class AbstractIvoryHttpAdapterExtensionTest extends \PHPUnit_Framework_
     {
         $this->container->set(
             'ivory.cache.adapter',
-            $cacheAdapter = $this->getMock('Ivory\HttpAdapter\Event\Cache\Adapter\CacheAdapterInterface')
+            $cacheAdapter = $this->createMock('Ivory\HttpAdapter\Event\Cache\Adapter\CacheAdapterInterface')
         );
 
         $this->loadConfiguration($this->container, 'global_cache');
@@ -252,7 +253,7 @@ abstract class AbstractIvoryHttpAdapterExtensionTest extends \PHPUnit_Framework_
     {
         $this->container->set(
             'ivory.cache.adapter',
-            $cacheAdapter = $this->getMock('Ivory\HttpAdapter\Event\Cache\Adapter\CacheAdapterInterface')
+            $cacheAdapter = $this->createMock('Ivory\HttpAdapter\Event\Cache\Adapter\CacheAdapterInterface')
         );
 
         $this->loadConfiguration($this->container, 'global_cache_without_exception');
@@ -277,7 +278,7 @@ abstract class AbstractIvoryHttpAdapterExtensionTest extends \PHPUnit_Framework_
     {
         $this->container->set(
             'ivory.cache.adapter',
-            $cacheAdapter = $this->getMock('Ivory\HttpAdapter\Event\Cache\Adapter\CacheAdapterInterface')
+            $cacheAdapter = $this->createMock('Ivory\HttpAdapter\Event\Cache\Adapter\CacheAdapterInterface')
         );
 
         $this->loadConfiguration($this->container, 'global_cache_with_lifetime');
@@ -413,7 +414,7 @@ abstract class AbstractIvoryHttpAdapterExtensionTest extends \PHPUnit_Framework_
 
     public function testGlobalHistorySubscriberWithService()
     {
-        $this->container->set('custom_journal', $this->getMock('Ivory\HttpAdapter\Event\History\JournalInterface'));
+        $this->container->set('custom_journal', $this->createMock('Ivory\HttpAdapter\Event\History\JournalInterface'));
         $this->loadConfiguration($this->container, 'global_history_with_service');
         $this->container->compile();
 
@@ -428,7 +429,7 @@ abstract class AbstractIvoryHttpAdapterExtensionTest extends \PHPUnit_Framework_
 
     public function testGlobalLoggerSubscriber()
     {
-        $this->container->set('logger', $this->getMock('Psr\Log\LoggerInterface'));
+        $this->container->set('logger', $this->createMock('Psr\Log\LoggerInterface'));
         $this->loadConfiguration($this->container, 'global_logger');
         $this->container->compile();
 
@@ -443,7 +444,7 @@ abstract class AbstractIvoryHttpAdapterExtensionTest extends \PHPUnit_Framework_
 
     public function testGlobalLoggerSubscriberWithService()
     {
-        $this->container->set('custom_logger', $this->getMock('Psr\Log\LoggerInterface'));
+        $this->container->set('custom_logger', $this->createMock('Psr\Log\LoggerInterface'));
         $this->loadConfiguration($this->container, 'global_logger_with_service');
         $this->container->compile();
 
@@ -524,7 +525,7 @@ abstract class AbstractIvoryHttpAdapterExtensionTest extends \PHPUnit_Framework_
 
     public function testGlobalStopwatchSubscriber()
     {
-        $this->container->set('debug.stopwatch', $this->getMock('Symfony\Component\Stopwatch\Stopwatch'));
+        $this->container->set('debug.stopwatch', $this->createMock('Symfony\Component\Stopwatch\Stopwatch'));
         $this->loadConfiguration($this->container, 'global_stopwatch');
         $this->container->compile();
 
@@ -539,7 +540,7 @@ abstract class AbstractIvoryHttpAdapterExtensionTest extends \PHPUnit_Framework_
 
     public function testGlobalStopwatchSubscriberWithService()
     {
-        $this->container->set('custom_stopwatch', $this->getMock('Symfony\Component\Stopwatch\Stopwatch'));
+        $this->container->set('custom_stopwatch', $this->createMock('Symfony\Component\Stopwatch\Stopwatch'));
         $this->loadConfiguration($this->container, 'global_stopwatch_with_service');
         $this->container->compile();
 
@@ -683,7 +684,7 @@ abstract class AbstractIvoryHttpAdapterExtensionTest extends \PHPUnit_Framework_
     {
         $this->container->set(
             'ivory.cache.adapter',
-            $cacheAdapter = $this->getMock('Ivory\HttpAdapter\Event\Cache\Adapter\CacheAdapterInterface')
+            $cacheAdapter = $this->createMock('Ivory\HttpAdapter\Event\Cache\Adapter\CacheAdapterInterface')
         );
 
         $this->loadConfiguration($this->container, 'local_cache');
@@ -708,7 +709,7 @@ abstract class AbstractIvoryHttpAdapterExtensionTest extends \PHPUnit_Framework_
     {
         $this->container->set(
             'ivory.cache.adapter',
-            $cacheAdapter = $this->getMock('Ivory\HttpAdapter\Event\Cache\Adapter\CacheAdapterInterface')
+            $cacheAdapter = $this->createMock('Ivory\HttpAdapter\Event\Cache\Adapter\CacheAdapterInterface')
         );
 
         $this->loadConfiguration($this->container, 'local_cache_without_exception');
@@ -733,7 +734,7 @@ abstract class AbstractIvoryHttpAdapterExtensionTest extends \PHPUnit_Framework_
     {
         $this->container->set(
             'ivory.cache.adapter',
-            $cacheAdapter = $this->getMock('Ivory\HttpAdapter\Event\Cache\Adapter\CacheAdapterInterface')
+            $cacheAdapter = $this->createMock('Ivory\HttpAdapter\Event\Cache\Adapter\CacheAdapterInterface')
         );
 
         $this->loadConfiguration($this->container, 'local_cache_with_lifetime');
@@ -889,7 +890,7 @@ abstract class AbstractIvoryHttpAdapterExtensionTest extends \PHPUnit_Framework_
 
     public function testLocalHistorySubscriberWithService()
     {
-        $this->container->set('custom_journal', $this->getMock('Ivory\HttpAdapter\Event\History\JournalInterface'));
+        $this->container->set('custom_journal', $this->createMock('Ivory\HttpAdapter\Event\History\JournalInterface'));
         $this->loadConfiguration($this->container, 'local_history_with_service');
         $this->container->compile();
 
@@ -909,7 +910,7 @@ abstract class AbstractIvoryHttpAdapterExtensionTest extends \PHPUnit_Framework_
 
     public function testLocalLoggerSubscriber()
     {
-        $this->container->set('logger', $this->getMock('Psr\Log\LoggerInterface'));
+        $this->container->set('logger', $this->createMock('Psr\Log\LoggerInterface'));
         $this->loadConfiguration($this->container, 'local_logger');
         $this->container->compile();
 
@@ -929,7 +930,7 @@ abstract class AbstractIvoryHttpAdapterExtensionTest extends \PHPUnit_Framework_
 
     public function testLocalLoggerSubscriberWithService()
     {
-        $this->container->set('custom_logger', $this->getMock('Psr\Log\LoggerInterface'));
+        $this->container->set('custom_logger', $this->createMock('Psr\Log\LoggerInterface'));
         $this->loadConfiguration($this->container, 'local_logger_with_service');
         $this->container->compile();
 
@@ -1035,7 +1036,7 @@ abstract class AbstractIvoryHttpAdapterExtensionTest extends \PHPUnit_Framework_
 
     public function testLocalStopwatchSubscriber()
     {
-        $this->container->set('debug.stopwatch', $this->getMock('Symfony\Component\Stopwatch\Stopwatch'));
+        $this->container->set('debug.stopwatch', $this->createMock('Symfony\Component\Stopwatch\Stopwatch'));
         $this->loadConfiguration($this->container, 'local_stopwatch');
         $this->container->compile();
 
@@ -1055,7 +1056,7 @@ abstract class AbstractIvoryHttpAdapterExtensionTest extends \PHPUnit_Framework_
 
     public function testLocalStopwatchSubscriberWithService()
     {
-        $this->container->set('custom_stopwatch', $this->getMock('Symfony\Component\Stopwatch\Stopwatch'));
+        $this->container->set('custom_stopwatch', $this->createMock('Symfony\Component\Stopwatch\Stopwatch'));
         $this->loadConfiguration($this->container, 'local_stopwatch_with_service');
         $this->container->compile();
 
