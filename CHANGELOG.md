@@ -2,8 +2,11 @@
 
 ### 1.0.1 (????-??-??)
 
+ * 185e46a - [Scrutinizer] Fix configuration
+ * adae334 - [Travis] Fix pecl packages
+ * f1e12aa - [Readme] Fix code coverage badge
  * fbf5dad - Update tests
- * b0ae737 - Update CONTRIBUTIING
+ * b0ae737 - Update CONTRIBUTING
  * a76597d - [Travis] Update configuration
  * ca83e96 - [Scrutinizer] Update configuration
  * e031fd2 - [License] Happy new year
