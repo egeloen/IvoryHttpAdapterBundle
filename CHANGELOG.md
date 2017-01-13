@@ -2,6 +2,8 @@
 
 ### 1.0.1 (????-??-??)
 
+ * 533fbf3 - [Travis] Fix tests
+ * bda50e6 - [Travis] Remove dead matrix entry
  * 185e46a - [Scrutinizer] Fix configuration
  * adae334 - [Travis] Fix pecl packages
  * f1e12aa - [Readme] Fix code coverage badge
