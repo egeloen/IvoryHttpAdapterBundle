@@ -16,8 +16,6 @@ use Symfony\Component\DependencyInjection\Compiler\CompilerPassInterface;
 use Symfony\Component\DependencyInjection\ContainerBuilder;
 
 /**
- * Register listener compiler pass.
- *
  * @author GeLo <geloen.eric@gmail.com>
  */
 class RegisterListenerCompilerPass implements CompilerPassInterface
@@ -36,9 +34,7 @@ class RegisterListenerCompilerPass implements CompilerPassInterface
     }
 
     /**
-     * Processes listeners.
-     *
-     * @param \Symfony\Component\DependencyInjection\ContainerBuilder $container The container builder.
+     * @param ContainerBuilder $container
      */
     private function processListeners(ContainerBuilder $container)
     {
@@ -49,11 +45,11 @@ class RegisterListenerCompilerPass implements CompilerPassInterface
                         ->getDefinition($this->getEventDispatcherName($adapter))
                         ->addMethodCall(
                             'addListenerService',
-                            array(
+                            [
                                 $listener['event'],
-                                array($id, $listener['method']),
+                                [$id, $listener['method']],
                                 isset($listener['priority']) ? $listener['priority'] : 0,
-                            )
+                            ]
                         );
                 }
             }
@@ -61,9 +57,7 @@ class RegisterListenerCompilerPass implements CompilerPassInterface
     }
 
     /**
-     * Processes subscribers.
-     *
-     * @param \Symfony\Component\DependencyInjection\ContainerBuilder $container The container builder.
+     * @param ContainerBuilder $container
      */
     private function processSubscribers(ContainerBuilder $container)
     {
@@ -72,19 +66,17 @@ class RegisterListenerCompilerPass implements CompilerPassInterface
                 foreach ($this->getAdapters($subscriber, $container) as $adapter) {
                     $container
                         ->getDefinition($this->getEventDispatcherName($adapter))
-                        ->addMethodCall('addSubscriberService', array($id, $container->getDefinition($id)->getClass()));
+                        ->addMethodCall('addSubscriberService', [$id, $container->getDefinition($id)->getClass()]);
                 }
             }
         }
     }
 
     /**
-     * Gets the adapters.
+     * @param array            $configuration
+     * @param ContainerBuilder $container
      *
-     * @param array                                                   $configuration The configuration.
-     * @param \Symfony\Component\DependencyInjection\ContainerBuilder $container     The container.
-     *
-     * @return array The adapters.
+     * @return array
      */
     private function getAdapters(array $configuration, ContainerBuilder $container)
     {
@@ -96,11 +88,9 @@ class RegisterListenerCompilerPass implements CompilerPassInterface
     }
 
     /**
-     * Gets the event dispatcher service name.
+     * @param string $adapter
      *
-     * @param string $adapter The adapter name.
-     *
-     * @return string The event dispatcher name.
+     * @return string
      */
     private function getEventDispatcherName($adapter)
     {

@@ -28,15 +28,13 @@ use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpKernel\DataCollector\DataCollectorInterface;
 
 /**
- * Ivory http adapter data collector.
- *
  * @author GeLo <geloen.eric@gmail.com>
  */
-class IvoryHttpAdapterDataCollector
-    extends AbstractFormatterSubscriber
-    implements DataCollectorInterface, \Countable, \Serializable
+class IvoryHttpAdapterDataCollector extends AbstractFormatterSubscriber implements DataCollectorInterface, \Countable, \Serializable
 {
-    /** @var array */
+    /**
+     * @var array
+     */
     private $datas = [
         'responses'  => [],
         'exceptions' => [],
@@ -51,9 +49,7 @@ class IvoryHttpAdapterDataCollector
     }
 
     /**
-     * Gets the responses.
-     *
-     * @return array The responses.
+     * @return array
      */
     public function getResponses()
     {
@@ -61,9 +57,7 @@ class IvoryHttpAdapterDataCollector
     }
 
     /**
-     * Gets the exceptions.
-     *
-     * @return array The exceptions.
+     * @return array
      */
     public function getExceptions()
     {
@@ -71,9 +65,7 @@ class IvoryHttpAdapterDataCollector
     }
 
     /**
-     * Gets the time.
-     *
-     * @return float The time.
+     * @return float
      */
     public function getTime()
     {
@@ -87,9 +79,7 @@ class IvoryHttpAdapterDataCollector
     }
 
     /**
-     * On request created event.
-     *
-     * @param \Ivory\HttpAdapter\Event\RequestCreatedEvent $event The request created event.
+     * @param RequestCreatedEvent $event
      */
     public function onRequestCreated(RequestCreatedEvent $event)
     {
@@ -97,9 +87,7 @@ class IvoryHttpAdapterDataCollector
     }
 
     /**
-     * On request sent event.
-     *
-     * @param \Ivory\HttpAdapter\Event\RequestSentEvent $event The request sent event.
+     * @param RequestSentEvent $event
      */
     public function onRequestSent(RequestSentEvent $event)
     {
@@ -111,9 +99,7 @@ class IvoryHttpAdapterDataCollector
     }
 
     /**
-     * On request errored event.
-     *
-     * @param \Ivory\HttpAdapter\Event\RequestErroredEvent $event The request errored event.
+     * @param RequestErroredEvent $event
      */
     public function onRequestErrored(RequestErroredEvent $event)
     {
@@ -121,9 +107,7 @@ class IvoryHttpAdapterDataCollector
     }
 
     /**
-     * On multi request created event.
-     *
-     * @param \Ivory\HttpAdapter\Event\MultiRequestCreatedEvent $event The multi request created event.
+     * @param MultiRequestCreatedEvent $event
      */
     public function onMultiRequestCreated(MultiRequestCreatedEvent $event)
     {
@@ -137,9 +121,7 @@ class IvoryHttpAdapterDataCollector
     }
 
     /**
-     * On multi request send event.
-     *
-     * @param \Ivory\HttpAdapter\Event\MultiRequestSentEvent $event The mutli request send event.
+     * @param MultiRequestSentEvent $event
      */
     public function onMultiRequestSent(MultiRequestSentEvent $event)
     {
@@ -156,9 +138,7 @@ class IvoryHttpAdapterDataCollector
     }
 
     /**
-     * On multi request errored event.
-     *
-     * @param \Ivory\HttpAdapter\Event\MultiRequestErroredEvent $event The multi request errored event.
+     * @param MultiRequestErroredEvent $event
      */
     public function onMultiRequestErrored(MultiRequestErroredEvent $event)
     {
@@ -215,13 +195,11 @@ class IvoryHttpAdapterDataCollector
     }
 
     /**
-     * Collects a response.
+     * @param HttpAdapterInterface     $httpAdapter
+     * @param InternalRequestInterface $request
+     * @param ResponseInterface        $response
      *
-     * @param \Ivory\HttpAdapter\HttpAdapterInterface             $httpAdapter The http adapter.
-     * @param \Ivory\HttpAdapter\Message\InternalRequestInterface $request     The request.
-     * @param \Ivory\HttpAdapter\Message\ResponseInterface        $response    The response.
-     *
-     * @return \Ivory\HttpAdapter\Message\InternalRequestInterface The collected request.
+     * @return InternalRequestInterface
      */
     private function collectResponse(
         HttpAdapterInterface $httpAdapter,
@@ -240,12 +218,10 @@ class IvoryHttpAdapterDataCollector
     }
 
     /**
-     * Collects an exception.
+     * @param HttpAdapterInterface $httpAdapter
+     * @param HttpAdapterException $exception
      *
-     * @param \Ivory\HttpAdapter\HttpAdapterInterface $httpAdapter The http adapter.
-     * @param \Ivory\HttpAdapter\HttpAdapterException $exception   The exception.
-     *
-     * @return \Ivory\HttpAdapter\Message\InternalRequestInterface The collected request.
+     * @return InternalRequestInterface
      */
     private function collectException(HttpAdapterInterface $httpAdapter, HttpAdapterException $exception)
     {

@@ -23,18 +23,14 @@ use Symfony\Component\HttpKernel\DependencyInjection\ConfigurableExtension;
 use Symfony\Component\HttpKernel\Kernel;
 
 /**
- * Ivory http adapter extension.
- *
  * @author GeLo <geloen.eric@gmail.com>
  */
 class IvoryHttpAdapterExtension extends ConfigurableExtension
 {
     /**
-     * Creates a service name.
+     * @param string|null $suffix
      *
-     * @param string|null $suffix The suffix.
-     *
-     * @return string The service name.
+     * @return string
      */
     public static function createServiceName($suffix = null)
     {
@@ -67,11 +63,9 @@ class IvoryHttpAdapterExtension extends ConfigurableExtension
     }
 
     /**
-     * Loads the adapters.
-     *
-     * @param array                                                   $config    The configuration.
-     * @param \Symfony\Component\DependencyInjection\ContainerBuilder $container The container.
-     * @param \Symfony\Component\Config\Loader\LoaderInterface        $loader    The loader.
+     * @param array            $config
+     * @param ContainerBuilder $container
+     * @param LoaderInterface  $loader
      */
     private function loadAdapters(array $config, ContainerBuilder $container, LoaderInterface $loader)
     {
@@ -85,13 +79,11 @@ class IvoryHttpAdapterExtension extends ConfigurableExtension
     }
 
     /**
-     * Loads an adapter.
-     *
-     * @param string                                                  $name        The name.
-     * @param array                                                   $adapter     The adapter.
-     * @param array                                                   $configs     The global configuration.
-     * @param array                                                   $subscribers The global subscribers.
-     * @param \Symfony\Component\DependencyInjection\ContainerBuilder $container   The container.
+     * @param string           $name
+     * @param array            $adapter
+     * @param array            $configs
+     * @param array            $subscribers
+     * @param ContainerBuilder $container
      */
     private function loadAdapter($name, array $adapter, array $configs, array $subscribers, ContainerBuilder $container)
     {
@@ -140,13 +132,11 @@ class IvoryHttpAdapterExtension extends ConfigurableExtension
     }
 
     /**
-     * Loads the subscribers.
-     *
-     * @param string                                                  $name        The name.
-     * @param array                                                   $adapter     The adapter.
-     * @param array                                                   $subscribers The global subscribers.
-     * @param \Symfony\Component\DependencyInjection\ContainerBuilder $container   The container.
-     * @param \Symfony\Component\Config\Loader\LoaderInterface        $loader      The loader.
+     * @param string           $name
+     * @param array            $adapter
+     * @param array            $subscribers
+     * @param ContainerBuilder $container
+     * @param LoaderInterface  $loader
      */
     private function loadSubscribers(
         $name,
@@ -173,50 +163,44 @@ class IvoryHttpAdapterExtension extends ConfigurableExtension
     }
 
     /**
-     * Creates an adapter definition.
+     * @param array  $adapter
+     * @param string $configuration
      *
-     * @param array  $adapter       The adapter.
-     * @param string $configuration The configuration service name.
-     *
-     * @return \Symfony\Component\DependencyInjection\DefinitionDecorator The adapter definition.
+     * @return DefinitionDecorator
      */
     private function createAdapterDefinition(array $adapter, $configuration)
     {
         $definition = new DefinitionDecorator(self::createServiceName('abstract'));
-        $definition->setArguments(array($adapter['type']));
-        $definition->addMethodCall('setConfiguration', array(new Reference($configuration)));
+        $definition->setArguments([$adapter['type']]);
+        $definition->addMethodCall('setConfiguration', [new Reference($configuration)]);
 
         return $definition;
     }
 
     /**
-     * Creates a configuration definition.
+     * @param array $adapter
+     * @param array $configs
      *
-     * @param array  $adapter The adapter.
-     * @param array  $configs The global configuration.
-     *
-     * @return \Symfony\Component\DependencyInjection\DefinitionDecorator The configuration definition.
+     * @return DefinitionDecorator
      */
     private function createConfigurationDefinition(array $adapter, array $configs)
     {
         $definition = new DefinitionDecorator(self::createServiceName('configuration'));
 
         foreach (array_merge($configs, $adapter['configs']) as $property => $value) {
-            $definition->addMethodCall($this->getMethod($property), array($value));
+            $definition->addMethodCall($this->getMethod($property), [$value]);
         }
 
         return $definition;
     }
 
     /**
-     * Creates a subscriber definition.
+     * @param string           $adapterName
+     * @param string           $subscriberName
+     * @param array|string     $configuration
+     * @param ContainerBuilder $container
      *
-     * @param string                                                  $adapterName    The adatper name.
-     * @param string                                                  $subscriberName The subscriber name.
-     * @param array|string                                            $configuration  The configuration.
-     * @param \Symfony\Component\DependencyInjection\ContainerBuilder $container      The container builder.
-     *
-     * @return \Symfony\Component\DependencyInjection\DefinitionDecorator The subscriber definition.
+     * @return DefinitionDecorator
      */
     private function createSubscriberDefinition(
         $adapterName,
@@ -228,7 +212,7 @@ class IvoryHttpAdapterExtension extends ConfigurableExtension
 
         $subscriber = new DefinitionDecorator($parent);
         $subscriber->setClass($container->getDefinition($parent)->getClass());
-        $subscriber->addTag(RegisterListenerCompilerPass::SUBSCRIBER_TAG, array('adapter' => $adapterName));
+        $subscriber->addTag(RegisterListenerCompilerPass::SUBSCRIBER_TAG, ['adapter' => $adapterName]);
 
         switch ($subscriberName) {
             case 'basic_auth':
@@ -268,12 +252,10 @@ class IvoryHttpAdapterExtension extends ConfigurableExtension
     }
 
     /**
-     * Configures the basic auth subscriber definition.
-     *
-     * @param \Symfony\Component\DependencyInjection\Definition       $subscriber  The subscriber.
-     * @param array                                                   $basicAuth   The basic auth.
-     * @param string                                                  $adapterName The adapter name.
-     * @param \Symfony\Component\DependencyInjection\ContainerBuilder $container   The container.
+     * @param Definition       $subscriber
+     * @param array            $basicAuth
+     * @param string           $adapterName
+     * @param ContainerBuilder $container
      */
     private function configureBasicAuthSubscriberDefinition(
         Definition $subscriber,
@@ -282,23 +264,21 @@ class IvoryHttpAdapterExtension extends ConfigurableExtension
         ContainerBuilder $container
     ) {
         $model = new DefinitionDecorator(self::createServiceName('subscriber.basic_auth.model'));
-        $model->setArguments(array($basicAuth['username'], $basicAuth['password']));
+        $model->setArguments([$basicAuth['username'], $basicAuth['password']]);
 
         if (isset($basicAuth['matcher'])) {
             $model->addArgument($basicAuth['matcher']);
         }
 
         $container->setDefinition($service = self::createServiceName($adapterName.'.basic_auth.model'), $model);
-        $subscriber->setArguments(array(new Reference($service)));
+        $subscriber->setArguments([new Reference($service)]);
     }
 
     /**
-     * Configures the cache subscriber definition.
-     *
-     * @param \Symfony\Component\DependencyInjection\Definition       $subscriber  The subscriber.
-     * @param array                                                   $cache       The cache.
-     * @param string                                                  $adapterName The adapter name.
-     * @param \Symfony\Component\DependencyInjection\ContainerBuilder $container   The container.
+     * @param Definition       $subscriber
+     * @param array            $cache
+     * @param string           $adapterName
+     * @param ContainerBuilder $container
      */
     private function configureCacheSubscriberDefinition(
         Definition $subscriber,
@@ -307,17 +287,15 @@ class IvoryHttpAdapterExtension extends ConfigurableExtension
         ContainerBuilder $container
     ) {
         $model = new DefinitionDecorator(self::createServiceName('subscriber.cache.model'));
-        $model->setArguments(array(new Reference($cache['adapter']), null, $cache['lifetime'], $cache['exception']));
+        $model->setArguments([new Reference($cache['adapter']), null, $cache['lifetime'], $cache['exception']]);
 
         $container->setDefinition($service = self::createServiceName($adapterName.'.cache.model'), $model);
-        $subscriber->setArguments(array(new Reference($service)));
+        $subscriber->setArguments([new Reference($service)]);
     }
 
     /**
-     * Configures the cookie subscriber definition.
-     *
-     * @param \Symfony\Component\DependencyInjection\Definition $subscriber The subscriber.
-     * @param string|null                                       $cookieJar  The cookie jar.
+     * @param Definition  $subscriber
+     * @param string|null $cookieJar
      */
     private function configureCookieSubscriberDefinition(Definition $subscriber, $cookieJar = null)
     {
@@ -325,42 +303,36 @@ class IvoryHttpAdapterExtension extends ConfigurableExtension
             $cookieJar = 'default';
         }
 
-        if (in_array($cookieJar, array('default', 'file', 'session'), true)) {
+        if (in_array($cookieJar, ['default', 'file', 'session'], true)) {
             $cookieJar = 'ivory.http_adapter.subscriber.cookie.jar.'.$cookieJar;
         }
 
-        $subscriber->setArguments(array(new Reference($cookieJar)));
+        $subscriber->setArguments([new Reference($cookieJar)]);
     }
 
     /**
-     * Configures the history subscriber definition.
-     *
-     * @param \Symfony\Component\DependencyInjection\Definition $definition The subscriber.
-     * @param string|null                                       $journal    The journal.
+     * @param Definition  $definition
+     * @param string|null $journal
      */
     private function configureHistorySubscriberDefinition(Definition $definition, $journal = null)
     {
-        $definition->setArguments(array(new Reference($journal ?: 'ivory.http_adapter.subscriber.history.journal')));
+        $definition->setArguments([new Reference($journal ?: 'ivory.http_adapter.subscriber.history.journal')]);
     }
 
     /**
-     * Configures the logger subscriber definition.
-     *
-     * @param \Symfony\Component\DependencyInjection\Definition $subscriber The definition.
-     * @param string|null                                       $logger     The logger.
+     * @param Definition  $subscriber
+     * @param string|null $logger
      */
     private function configureLoggerSubscriberDefinition(Definition $subscriber, $logger = null)
     {
-        $subscriber->setArguments(array(new Reference($logger ?: 'logger')));
+        $subscriber->setArguments([new Reference($logger ?: 'logger')]);
     }
 
     /**
-     * Configures the redirect subscriber definition.
-     *
-     * @param \Symfony\Component\DependencyInjection\Definition       $subscriber  The subscriber.
-     * @param array                                                   $redirect    The redirect.
-     * @param string                                                  $adapterName The adapter name.
-     * @param \Symfony\Component\DependencyInjection\ContainerBuilder $container   The container.
+     * @param Definition       $subscriber
+     * @param array            $redirect
+     * @param string           $adapterName
+     * @param ContainerBuilder $container
      */
     private function configureRedirectSubscriberDefinition(
         Definition $subscriber,
@@ -371,27 +343,25 @@ class IvoryHttpAdapterExtension extends ConfigurableExtension
         $model = new DefinitionDecorator(self::createServiceName('subscriber.redirect.model'));
 
         if (isset($redirect['max'])) {
-            $model->addMethodCall('setMax', array($redirect['max']));
+            $model->addMethodCall('setMax', [$redirect['max']]);
         }
 
         if (isset($redirect['strict'])) {
-            $model->addMethodCall('setStrict', array($redirect['strict']));
+            $model->addMethodCall('setStrict', [$redirect['strict']]);
         }
 
         if (isset($redirect['throw_exception'])) {
-            $model->addMethodCall('setThrowException', array($redirect['throw_exception']));
+            $model->addMethodCall('setThrowException', [$redirect['throw_exception']]);
         }
 
         $container->setDefinition($service = self::createServiceName($adapterName.'.redirect.model'), $model);
-        $subscriber->setArguments(array(new Reference($service)));
+        $subscriber->setArguments([new Reference($service)]);
     }
 
     /**
-     * Configures the retry subscriber definition.
-     *
-     * @param \Symfony\Component\DependencyInjection\Definition       $subscriber  The subscriber.
-     * @param string                                                  $adapterName The adapter name.
-     * @param \Symfony\Component\DependencyInjection\ContainerBuilder $container   The container.
+     * @param Definition       $subscriber
+     * @param string           $adapterName
+     * @param ContainerBuilder $container
      */
     private function configureRetrySubscriberDefinition(
         Definition $subscriber,
@@ -403,26 +373,22 @@ class IvoryHttpAdapterExtension extends ConfigurableExtension
             new DefinitionDecorator(self::createServiceName('subscriber.retry.model'))
         );
 
-        $subscriber->setArguments(array(new Reference($service)));
+        $subscriber->setArguments([new Reference($service)]);
     }
 
     /**
-     * Configures the stopwatch subscriber definition.
-     *
-     * @param \Symfony\Component\DependencyInjection\Definition $subscriber The subscriber.
-     * @param string|null                                       $stopwatch  The stopwatch.
+     * @param Definition  $subscriber
+     * @param string|null $stopwatch
      */
     private function configureStopwatchSubscriberDefinition(Definition $subscriber, $stopwatch = null)
     {
-        $subscriber->setArguments(array(new Reference($stopwatch ?: 'debug.stopwatch')));
+        $subscriber->setArguments([new Reference($stopwatch ?: 'debug.stopwatch')]);
     }
 
     /**
-     * Gets a method name.
+     * @param string $property
      *
-     * @param string $property The property.
-     *
-     * @return string The method name.
+     * @return string
      */
     private function getMethod($property)
     {

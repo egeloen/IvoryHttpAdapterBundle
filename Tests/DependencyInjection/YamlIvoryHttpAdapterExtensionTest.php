@@ -16,8 +16,6 @@ use Symfony\Component\DependencyInjection\ContainerBuilder;
 use Symfony\Component\DependencyInjection\Loader\YamlFileLoader;
 
 /**
- * Yaml Ivory http adapter extension test.
- *
  * @author GeLo <geloen.eric@gmail.com>
  */
 class YamlIvoryHttpAdapterExtensionTest extends AbstractIvoryHttpAdapterExtensionTest

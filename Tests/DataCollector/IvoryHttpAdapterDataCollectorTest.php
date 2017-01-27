@@ -11,33 +11,40 @@
 
 namespace Ivory\HttpAdapterBundle\Tests\DataCollector;
 
+use Ivory\HttpAdapter\ConfigurationInterface;
+use Ivory\HttpAdapter\Event\Formatter\FormatterInterface;
 use Ivory\HttpAdapter\Event\MultiRequestCreatedEvent;
 use Ivory\HttpAdapter\Event\MultiRequestErroredEvent;
 use Ivory\HttpAdapter\Event\MultiRequestSentEvent;
 use Ivory\HttpAdapter\Event\RequestCreatedEvent;
 use Ivory\HttpAdapter\Event\RequestErroredEvent;
 use Ivory\HttpAdapter\Event\RequestSentEvent;
-use Ivory\HttpAdapter\HttpAdapterInterface;
+use Ivory\HttpAdapter\Event\Timer\TimerInterface;
 use Ivory\HttpAdapter\HttpAdapterException;
+use Ivory\HttpAdapter\HttpAdapterInterface;
 use Ivory\HttpAdapter\Message\InternalRequestInterface;
 use Ivory\HttpAdapter\Message\ResponseInterface;
 use Ivory\HttpAdapterBundle\DataCollector\IvoryHttpAdapterDataCollector;
 use Ivory\HttpAdapterBundle\Tests\AbstractTestCase;
 
 /**
- * Ivory http adapter data collector test.
- *
  * @author GeLo <geloen.eric@gmail.com>
  */
 class IvoryHttpAdapterDataCollectorTest extends AbstractTestCase
 {
-    /** @var \Ivory\HttpAdapterBundle\DataCollector\IvoryHttpAdapterDataCollector */
+    /**
+     * @var IvoryHttpAdapterDataCollector
+     */
     private $dataCollector;
 
-    /** @var \PHPUnit_Framework_MockObject_MockObject|\Ivory\HttpAdapter\Event\Formatter\FormatterInterface */
+    /**
+     * @var \PHPUnit_Framework_MockObject_MockObject|FormatterInterface
+     */
     private $formatter;
 
-    /** @var \PHPUnit_Framework_MockObject_MockObject|\Ivory\HttpAdapter\Event\Timer\TimerInterface */
+    /**
+     * @var \PHPUnit_Framework_MockObject_MockObject|TimerInterface
+     */
     private $timer;
 
     /**
@@ -49,14 +56,6 @@ class IvoryHttpAdapterDataCollectorTest extends AbstractTestCase
         $this->timer = $this->createTimerMock();
 
         $this->dataCollector = new IvoryHttpAdapterDataCollector($this->formatter, $this->timer);
-    }
-
-    /**
-     * {@inheritdoc}
-     */
-    protected function tearDown()
-    {
-        unset($this->dataCollector);
     }
 
     public function testDefaultState()
@@ -393,12 +392,10 @@ class IvoryHttpAdapterDataCollectorTest extends AbstractTestCase
     }
 
     /**
-     * Creates a request created event.
+     * @param HttpAdapterInterface|null     $httpAdapter
+     * @param InternalRequestInterface|null $request
      *
-     * @param \Ivory\HttpAdapter\HttpAdapterInterface|null             $httpAdapter The http adapter.
-     * @param \Ivory\HttpAdapter\Message\InternalRequestInterface|null $request     The request.
-     *
-     * @return \Ivory\HttpAdapter\Event\RequestCreatedEvent The request created event.
+     * @return RequestCreatedEvent
      */
     private function createRequestCreatedEvent(
         HttpAdapterInterface $httpAdapter = null,
@@ -411,13 +408,11 @@ class IvoryHttpAdapterDataCollectorTest extends AbstractTestCase
     }
 
     /**
-     * Creates a request send event.
+     * @param HttpAdapterInterface|null     $httpAdapter
+     * @param InternalRequestInterface|null $request
+     * @param ResponseInterface|null        $response
      *
-     * @param \Ivory\HttpAdapter\HttpAdapterInterface|null             $httpAdapter The http adapter.
-     * @param \Ivory\HttpAdapter\Message\InternalRequestInterface|null $request     The request.
-     * @param \Ivory\HttpAdapter\Message\ResponseInterface|null        $response    The response.
-     *
-     * @return \Ivory\HttpAdapter\Event\RequestSentEvent The request send event.
+     * @return RequestSentEvent
      */
     private function createRequestSentEvent(
         HttpAdapterInterface $httpAdapter = null,
@@ -432,12 +427,10 @@ class IvoryHttpAdapterDataCollectorTest extends AbstractTestCase
     }
 
     /**
-     * Creates a request errored event.
+     * @param HttpAdapterInterface|null $httpAdapter
+     * @param HttpAdapterException|null $exception
      *
-     * @param \Ivory\HttpAdapter\HttpAdapterInterface|null $httpAdapter The http adapter.
-     * @param \Ivory\HttpAdapter\HttpAdapterException|null $exception   The exception.
-     *
-     * @return \Ivory\HttpAdapter\Event\RequestErroredEvent The request errored event.
+     * @return RequestErroredEvent
      */
     private function createRequestErroredEvent(
         HttpAdapterInterface $httpAdapter = null,
@@ -450,12 +443,10 @@ class IvoryHttpAdapterDataCollectorTest extends AbstractTestCase
     }
 
     /**
-     * Creates a multi request created event.
+     * @param HttpAdapterInterface|null $httpAdapter
+     * @param array                     $requests
      *
-     * @param \Ivory\HttpAdapter\HttpAdapterInterface|null $httpAdapter The http adapter.
-     * @param array                                        $requests    The requests.
-     *
-     * @return \Ivory\HttpAdapter\Event\MultiRequestCreatedEvent The multi request created event.
+     * @return MultiRequestCreatedEvent
      */
     private function createMultiRequestCreatedEvent(HttpAdapterInterface $httpAdapter = null, array $requests = [])
     {
@@ -463,12 +454,10 @@ class IvoryHttpAdapterDataCollectorTest extends AbstractTestCase
     }
 
     /**
-     * Creates a multi request sent event.
+     * @param HttpAdapterInterface|null $httpAdapter
+     * @param array                     $responses
      *
-     * @param \Ivory\HttpAdapter\HttpAdapterInterface|null $httpAdapter The http adapter.
-     * @param array                                        $responses   The responses.
-     *
-     * @return \Ivory\HttpAdapter\Event\MultiRequestSentEvent The multi request sent event.
+     * @return MultiRequestSentEvent
      */
     private function createMultiRequestSentEvent(HttpAdapterInterface $httpAdapter = null, array $responses = [])
     {
@@ -476,12 +465,10 @@ class IvoryHttpAdapterDataCollectorTest extends AbstractTestCase
     }
 
     /**
-     * Creates a multi request errored event.
+     * @param HttpAdapterInterface|null $httpAdapter
+     * @param array                     $exceptions
      *
-     * @param \Ivory\HttpAdapter\HttpAdapterInterface|null $httpAdapter The http adapter.
-     * @param array                                        $exceptions  The exceptions.
-     *
-     * @return \Ivory\HttpAdapter\Event\MultiRequestErroredEvent The multi request errored event.
+     * @return MultiRequestErroredEvent
      */
     private function createMultiRequestErroredEvent(HttpAdapterInterface $httpAdapter = null, array $exceptions = [])
     {
@@ -489,7 +476,7 @@ class IvoryHttpAdapterDataCollectorTest extends AbstractTestCase
     }
 
     /**
-     * @return \PHPUnit_Framework_MockObject_MockObject|\Ivory\HttpAdapter\Event\Formatter\FormatterInterface
+     * @return \PHPUnit_Framework_MockObject_MockObject|FormatterInterface
      */
     private function createFormatterMock()
     {
@@ -497,7 +484,7 @@ class IvoryHttpAdapterDataCollectorTest extends AbstractTestCase
     }
 
     /**
-     * @return \PHPUnit_Framework_MockObject_MockObject|\Ivory\HttpAdapter\Event\Timer\TimerInterface
+     * @return \PHPUnit_Framework_MockObject_MockObject|TimerInterface
      */
     private function createTimerMock()
     {
@@ -505,9 +492,7 @@ class IvoryHttpAdapterDataCollectorTest extends AbstractTestCase
     }
 
     /**
-     * Creates an http adapter mock.
-     *
-     * @return \Ivory\HttpAdapter\HttpAdapterInterface|\PHPUnit_Framework_MockObject_MockObject The http adapter mock.
+     * @return HttpAdapterInterface|\PHPUnit_Framework_MockObject_MockObject
      */
     private function createHttpAdapterMock()
     {
@@ -526,9 +511,7 @@ class IvoryHttpAdapterDataCollectorTest extends AbstractTestCase
     }
 
     /**
-     * Creates a configuration mock.
-     *
-     * @return \Ivory\HttpAdapter\ConfigurationInterface|\PHPUnit_Framework_MockObject_MockObject The configuration mock.
+     * @return ConfigurationInterface|\PHPUnit_Framework_MockObject_MockObject
      */
     private function createConfigurationMock()
     {
@@ -536,9 +519,7 @@ class IvoryHttpAdapterDataCollectorTest extends AbstractTestCase
     }
 
     /**
-     * Creates a request mock.
-     *
-     * @return \Ivory\HttpAdapter\Message\InternalRequestInterface|\PHPUnit_Framework_MockObject_MockObject The request mock.
+     * @return InternalRequestInterface|\PHPUnit_Framework_MockObject_MockObject
      */
     private function createRequestMock()
     {
@@ -587,11 +568,9 @@ class IvoryHttpAdapterDataCollectorTest extends AbstractTestCase
     }
 
     /**
-     * Creates a response mock.
+     * @param InternalRequestInterface|null $request
      *
-     * @param \Ivory\HttpAdapter\Message\InternalRequestInterface|null $request The request.
-     *
-     * @return \Ivory\HttpAdapter\Message\ResponseInterface|\PHPUnit_Framework_MockObject_MockObject The response mock.
+     * @return ResponseInterface|\PHPUnit_Framework_MockObject_MockObject
      */
     private function createResponseMock(InternalRequestInterface $request = null)
     {
@@ -644,12 +623,10 @@ class IvoryHttpAdapterDataCollectorTest extends AbstractTestCase
     }
 
     /**
-     * Creates an exception mock.
+     * @param InternalRequestInterface|null $request
+     * @param ResponseInterface|null        $response
      *
-     * @param \Ivory\HttpAdapter\Message\InternalRequestInterface|null $request  The request.
-     * @param \Ivory\HttpAdapter\Message\ResponseInterface|null        $response The response.
-     *
-     * @return \Ivory\HttpAdapter\HttpAdapterException|\PHPUnit_Framework_MockObject_MockObject The exception mock.
+     * @return HttpAdapterException|\PHPUnit_Framework_MockObject_MockObject
      */
     private function createExceptionMock(InternalRequestInterface $request = null, ResponseInterface $response = null)
     {

@@ -16,15 +16,16 @@ use Ivory\HttpAdapterBundle\DependencyInjection\Compiler\RegisterListenerCompile
 use Ivory\HttpAdapterBundle\DependencyInjection\IvoryHttpAdapterExtension;
 use Ivory\HttpAdapterBundle\Tests\AbstractTestCase;
 use Symfony\Component\DependencyInjection\ContainerBuilder;
+use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 
 /**
- * Abstract Ivory http adapter extension test.
- *
  * @author GeLo <geloen.eric@gmail.com>
  */
 abstract class AbstractIvoryHttpAdapterExtensionTest extends AbstractTestCase
 {
-    /** @var \Symfony\Component\DependencyInjection\ContainerBuilder */
+    /**
+     * @var ContainerBuilder
+     */
     private $container;
 
     /**
@@ -40,18 +41,8 @@ abstract class AbstractIvoryHttpAdapterExtensionTest extends AbstractTestCase
     }
 
     /**
-     * {@inheritdoc}
-     */
-    protected function tearDown()
-    {
-        unset($this->container);
-    }
-
-    /**
-     * Loads a configuration.
-     *
-     * @param \Symfony\Component\DependencyInjection\ContainerBuilder $container     The container.
-     * @param string                                                  $configuration The configuration.
+     * @param ContainerBuilder $container
+     * @param string           $configuration
      */
     abstract protected function loadConfiguration(ContainerBuilder $container, $configuration);
 
@@ -110,6 +101,10 @@ abstract class AbstractIvoryHttpAdapterExtensionTest extends AbstractTestCase
     }
 
     /**
+     * @param string $configuration
+     * @param string $service
+     * @param string $class
+     *
      * @dataProvider httpAdapterProvider
      */
     public function testHttpAdapter($configuration, $service, $class)
@@ -1142,45 +1137,41 @@ abstract class AbstractIvoryHttpAdapterExtensionTest extends AbstractTestCase
     }
 
     /**
-     * Get the http adapter provider.
-     *
-     * @return array The http adapter provider.
+     * @return array
      */
     public function httpAdapterProvider()
     {
-        return array(
-            array('buzz', 'ivory.http_adapter.buzz', 'Ivory\HttpAdapter\BuzzHttpAdapter'),
-            array('cake', 'ivory.http_adapter.cake', 'Ivory\HttpAdapter\CakeHttpAdapter'),
-            array('curl', 'ivory.http_adapter.curl', 'Ivory\HttpAdapter\CurlHttpAdapter'),
-            array(
+        return [
+            ['buzz', 'ivory.http_adapter.buzz', 'Ivory\HttpAdapter\BuzzHttpAdapter'],
+            ['cake', 'ivory.http_adapter.cake', 'Ivory\HttpAdapter\CakeHttpAdapter'],
+            ['curl', 'ivory.http_adapter.curl', 'Ivory\HttpAdapter\CurlHttpAdapter'],
+            [
                 'file_get_contents',
                 'ivory.http_adapter.file_get_contents',
                 'Ivory\HttpAdapter\FileGetContentsHttpAdapter',
-            ),
-            array('fopen', 'ivory.http_adapter.fopen', 'Ivory\HttpAdapter\FopenHttpAdapter'),
-            array('guzzle3', 'ivory.http_adapter.guzzle3', 'Ivory\HttpAdapter\Guzzle3HttpAdapter'),
-            array('guzzle4', 'ivory.http_adapter.guzzle4', 'Ivory\HttpAdapter\Guzzle4HttpAdapter'),
-            array('guzzle5', 'ivory.http_adapter.guzzle5', 'Ivory\HttpAdapter\Guzzle5HttpAdapter'),
-            array('guzzle6', 'ivory.http_adapter.guzzle6', 'Ivory\HttpAdapter\Guzzle6HttpAdapter'),
-            array('httpful', 'ivory.http_adapter.httpful', 'Ivory\HttpAdapter\HttpfulHttpAdapter'),
-            array('pecl_http', 'ivory.http_adapter.pecl_http', 'Ivory\HttpAdapter\PeclHttpAdapter'),
-            array('react', 'ivory.http_adapter.react', 'Ivory\HttpAdapter\ReactHttpAdapter'),
-            array('requests', 'ivory.http_adapter.requests', 'Ivory\HttpAdapter\RequestsHttpAdapter'),
-            array('socket', 'ivory.http_adapter.socket', 'Ivory\HttpAdapter\SocketHttpAdapter'),
-            array('zend1', 'ivory.http_adapter.zend1', 'Ivory\HttpAdapter\Zend1HttpAdapter'),
-            array('zend2', 'ivory.http_adapter.zend2', 'Ivory\HttpAdapter\Zend2HttpAdapter'),
-        );
+            ],
+            ['fopen', 'ivory.http_adapter.fopen', 'Ivory\HttpAdapter\FopenHttpAdapter'],
+            ['guzzle3', 'ivory.http_adapter.guzzle3', 'Ivory\HttpAdapter\Guzzle3HttpAdapter'],
+            ['guzzle4', 'ivory.http_adapter.guzzle4', 'Ivory\HttpAdapter\Guzzle4HttpAdapter'],
+            ['guzzle5', 'ivory.http_adapter.guzzle5', 'Ivory\HttpAdapter\Guzzle5HttpAdapter'],
+            ['guzzle6', 'ivory.http_adapter.guzzle6', 'Ivory\HttpAdapter\Guzzle6HttpAdapter'],
+            ['httpful', 'ivory.http_adapter.httpful', 'Ivory\HttpAdapter\HttpfulHttpAdapter'],
+            ['pecl_http', 'ivory.http_adapter.pecl_http', 'Ivory\HttpAdapter\PeclHttpAdapter'],
+            ['react', 'ivory.http_adapter.react', 'Ivory\HttpAdapter\ReactHttpAdapter'],
+            ['requests', 'ivory.http_adapter.requests', 'Ivory\HttpAdapter\RequestsHttpAdapter'],
+            ['socket', 'ivory.http_adapter.socket', 'Ivory\HttpAdapter\SocketHttpAdapter'],
+            ['zend1', 'ivory.http_adapter.zend1', 'Ivory\HttpAdapter\Zend1HttpAdapter'],
+            ['zend2', 'ivory.http_adapter.zend2', 'Ivory\HttpAdapter\Zend2HttpAdapter'],
+        ];
     }
 
     /**
-     * Asserts a listener.
+     * @param EventDispatcherInterface $eventDispatcher
+     * @param string                   $eventName
+     * @param string                   $class
+     * @param bool                     $unicity
      *
-     * @param \Symfony\Component\EventDispatcher\EventDispatcherInterface $eventDispatcher The event dispatcher.
-     * @param string                                                      $eventName       The event name.
-     * @param string                                                      $class           The class.
-     * @param boolean                                                     $unicity         The unicity.
-     *
-     * @return object The listener.
+     * @return object
      */
     private function assertListener($eventDispatcher, $eventName, $class, $unicity = true)
     {

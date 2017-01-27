@@ -14,13 +14,13 @@ namespace Ivory\HttpAdapterBundle\Tests;
 use Ivory\HttpAdapterBundle\IvoryHttpAdapterBundle;
 
 /**
- * Ivory http adapter bundle test.
- *
  * @author GeLo <geloen.eric@gmail.com>
  */
-class IvoryHttpAdapterBundleTest extends AbstractTestCase 
+class IvoryHttpAdapterBundleTest extends AbstractTestCase
 {
-    /** @var \Ivory\HttpAdapterBundle\IvoryHttpAdapterBundle */
+    /**
+     * @var IvoryHttpAdapterBundle
+     */
     private $bundle;
 
     /**
@@ -31,14 +31,6 @@ class IvoryHttpAdapterBundleTest extends AbstractTestCase
         $this->bundle = new IvoryHttpAdapterBundle();
     }
 
-    /**
-     * {@inheritdoc}
-     */
-    protected function tearDown()
-    {
-        unset($this->bundle);
-    }
-
     public function testInheritance()
     {
         $this->assertInstanceOf('Symfony\Component\HttpKernel\Bundle\Bundle', $this->bundle);
@@ -47,7 +39,7 @@ class IvoryHttpAdapterBundleTest extends AbstractTestCase
     public function testRegisterListenerCompilerPass()
     {
         $container = $this->getMockBuilder('Symfony\Component\DependencyInjection\ContainerBuilder')
-            ->setMethods(array('addCompilerPass'))
+            ->setMethods(['addCompilerPass'])
             ->getMock();
 
         $container

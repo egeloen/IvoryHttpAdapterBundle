@@ -11,13 +11,14 @@
         }
     ],
     "require": {
-        "php": ">=5.4.8",
+        "php": "^5.4.8|^7.0",
         "egeloen/http-adapter": "^1.0",
         "symfony/framework-bundle": "^2.2|^3.0"
     },
     "require-dev": {
         "cakephp/cakephp": "^3.0",
         "ext-curl": "*",
+        "friendsofphp/php-cs-fixer": "^2.0",
         "guzzle/guzzle": "^3.9.2",
         "guzzlehttp/guzzle": "^4.1.4|^5.0|^6.0",
         "kriswallsmith/buzz": "~0.15",

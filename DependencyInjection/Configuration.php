@@ -11,12 +11,12 @@
 
 namespace Ivory\HttpAdapterBundle\DependencyInjection;
 
+use Symfony\Component\Config\Definition\Builder\ArrayNodeDefinition;
+use Symfony\Component\Config\Definition\Builder\NodeDefinition;
 use Symfony\Component\Config\Definition\Builder\TreeBuilder;
 use Symfony\Component\Config\Definition\ConfigurationInterface;
 
 /**
- * Ivory http adapter configuration.
- *
  * @author GeLo <geloen.eric@gmail.com>
  */
 class Configuration implements ConfigurationInterface
@@ -54,9 +54,7 @@ class Configuration implements ConfigurationInterface
     }
 
     /**
-     * Creates the adapters node.
-     *
-     * @return \Symfony\Component\Config\Definition\Builder\NodeDefinition The adapters node.
+     * @return NodeDefinition
      */
     private function createAdaptersNode()
     {
@@ -72,9 +70,7 @@ class Configuration implements ConfigurationInterface
     }
 
     /**
-     * Creates the configs node.
-     *
-     * @return \Symfony\Component\Config\Definition\Builder\NodeDefinition The configs node.
+     * @return NodeDefinition
      */
     private function createConfigsNode()
     {
@@ -91,9 +87,7 @@ class Configuration implements ConfigurationInterface
     }
 
     /**
-     * Creates the subscribers node.
-     *
-     * @return \Symfony\Component\Config\Definition\Builder\NodeDefinition The subscribers node.
+     * @return NodeDefinition
      */
     private function createSubscribersNode()
     {
@@ -113,9 +107,7 @@ class Configuration implements ConfigurationInterface
     }
 
     /**
-     * Creates the basic auth subscriber node.
-     *
-     * @return \Symfony\Component\Config\Definition\Builder\NodeDefinition The basic auth subscriber node.
+     * @return NodeDefinition
      */
     private function createBasicAuthSubscriberNode()
     {
@@ -128,9 +120,7 @@ class Configuration implements ConfigurationInterface
     }
 
     /**
-     * Creates the cache subscriber node.
-     *
-     * @return \Symfony\Component\Config\Definition\Builder\NodeDefinition The cache subscriber node.
+     * @return NodeDefinition
      */
     private function createCacheSubscriberNode()
     {
@@ -143,9 +133,7 @@ class Configuration implements ConfigurationInterface
     }
 
     /**
-     * Creates the redirect subscriber node.
-     *
-     * @return \Symfony\Component\Config\Definition\Builder\NodeDefinition The redirect subscriber node.
+     * @return NodeDefinition
      */
     private function createRedirectSubscriberNode()
     {
@@ -158,11 +146,9 @@ class Configuration implements ConfigurationInterface
     }
 
     /**
-     * Creates a node.
+     * @param string $name
      *
-     * @param string $name The node name.
-     *
-     * @return \Symfony\Component\Config\Definition\Builder\NodeDefinition|\Symfony\Component\Config\Definition\Builder\ArrayNodeDefinition The node.
+     * @return NodeDefinition|ArrayNodeDefinition
      */
     private function createNode($name)
     {
@@ -170,9 +156,7 @@ class Configuration implements ConfigurationInterface
     }
 
     /**
-     * Creates a tree builder.
-     *
-     * @return \Symfony\Component\Config\Definition\Builder\TreeBuilder The tree builder.
+     * @return TreeBuilder
      */
     private function createTreeBuilder()
     {
