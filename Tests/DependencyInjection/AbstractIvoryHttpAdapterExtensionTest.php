@@ -113,7 +113,7 @@ abstract class AbstractIvoryHttpAdapterExtensionTest extends AbstractTestCase
             || ($configuration === 'guzzle4' && !class_exists('GuzzleHttp\Adapter\Curl\CurlAdapter'))
             || ($configuration === 'guzzle5' && !class_exists('GuzzleHttp\Ring\Client\CurlHandler'))
             || ($configuration === 'guzzle6') && !class_exists('GuzzleHttp\Handler\CurlHandler')
-            || ($configuration === 'pecl_http') && !extension_loaded('pecl_http')) {
+            || ($configuration === 'pecl_http') && !class_exists('http\Client')) {
             $this->markTestSkipped();
         }
 
