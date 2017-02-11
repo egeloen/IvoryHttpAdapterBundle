@@ -16,30 +16,17 @@ env:
         - SYMFONY_DEPRECATIONS_HELPER=weak
         - SYMFONY_VERSION=2.3.*
         - GUZZLE_VERSION=6.*
+        - DOCKER_BUILD=false
 
-install:
-    - if [[ "$TRAVIS_PHP_VERSION" != "hhvm" ]] && [[ "$TRAVIS_PHP_VERSION" != 7.* ]]; then printf "\n" | pecl install propro-1.0.2; fi
-    - if [[ "$TRAVIS_PHP_VERSION" != "hhvm" ]] && [[ "$TRAVIS_PHP_VERSION" != 7.* ]]; then printf "\n" | pecl install raphf-1.1.2; fi
-    - if [[ "$TRAVIS_PHP_VERSION" != "hhvm" ]] && [[ "$TRAVIS_PHP_VERSION" != 7.* ]]; then printf "\n" | pecl install pecl_http-2.5.6; fi
-    - if [[ "$TRAVIS_PHP_VERSION" = 7.* ]]; then printf "\n" | pecl install propro; fi
-    - if [[ "$TRAVIS_PHP_VERSION" = 7.* ]]; then printf "\n" | pecl install raphf; fi
-    - if [[ "$TRAVIS_PHP_VERSION" = 7.* ]]; then printf "\n" | pecl install pecl_http; fi
-    - composer self-update
-    - composer require --no-update symfony/framework-bundle:${SYMFONY_VERSION}
-    - if [[ "$SYMFONY_VERSION" = 3\.* ]]; then composer remove --dev --no-update guzzle/guzzle; fi
-    - if [[ "$GUZZLE_VERSION" != "6.*" ]]; then composer require guzzlehttp/guzzle:${GUZZLE_VERSION} --no-update --dev; fi
-    - composer remove --no-update --dev friendsofphp/php-cs-fixer
-    - if [[ "$SYMFONY_VERSION" = *dev* ]]; then sed -i "s/\"MIT\"/\"MIT\",\"minimum-stability\":\"dev\"/g" composer.json; fi
-    - composer update --prefer-source `if [[ $COMPOSER_PREFER_LOWEST = true ]]; then echo "--prefer-lowest --prefer-stable"; fi`
-
-script: vendor/bin/phpunit --coverage-clover build/clover.xml
-
-after_success:
-    - wget https://scrutinizer-ci.com/ocular.phar
-    - php ocular.phar code-coverage:upload --format=php-clover build/clover.xml
+install: travis/install.sh
+script: travis/script.sh
+after_success: travis/success.sh
 
 matrix:
     include:
+        - php: 5.6
+          services: [docker]
+          env: DOCKER_BUILD=true
         - php: 5.4
           env: COMPOSER_PREFER_LOWEST=true
         - php: 5.6
